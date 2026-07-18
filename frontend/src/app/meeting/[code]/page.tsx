@@ -112,6 +112,7 @@ export default function MeetingRoomPage({
   const [messages, setMessages] = useState<Message[]>([]);
   const [isHandRaised, setIsHandRaised] = useState(false);
   const [showReactionsMenu, setShowReactionsMenu] = useState(false);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [copied, setCopied] = useState(false);
 
   // Muted participants tracking
@@ -583,10 +584,97 @@ export default function MeetingRoomPage({
           )}
         </div>
 
-        <button className="toolbar-btn">
-          <MoreHorizontal />
-          <span>More</span>
-        </button>
+        <div style={{ position: "relative" }}>
+          <button
+            className={`toolbar-btn ${showMoreMenu ? "active" : ""}`}
+            onClick={() => {
+              setShowMoreMenu(!showMoreMenu);
+              setShowReactionsMenu(false);
+            }}
+          >
+            <MoreHorizontal />
+            <span>More</span>
+          </button>
+          {showMoreMenu && (
+            <div
+              className="more-menu"
+              style={{
+                position: "absolute",
+                bottom: "70px",
+                left: "50%",
+                transform: "translateX(-50%)",
+                background: "#2D2D30",
+                border: "1px solid rgba(255, 255, 255, 0.08)",
+                borderRadius: "8px",
+                padding: "6px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "4px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+                zIndex: 100,
+                minWidth: "150px",
+              }}
+            >
+              <button
+                onClick={() => {
+                  handleCopyLink();
+                  setShowMoreMenu(false);
+                }}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "white",
+                  fontSize: "13px",
+                  fontWeight: "500",
+                  cursor: "pointer",
+                  padding: "8px 12px",
+                  borderRadius: "4px",
+                  textAlign: "left",
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  transition: "background 0.15s",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.08)")}
+                onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
+              >
+                <Copy style={{ width: 14, height: 14 }} />
+                Share Link
+              </button>
+
+              {isHost && (
+                <button
+                  onClick={() => {
+                    handleEndMeeting();
+                    setShowMoreMenu(false);
+                  }}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "#E02020",
+                    fontSize: "13px",
+                    fontWeight: "500",
+                    cursor: "pointer",
+                    padding: "8px 12px",
+                    borderRadius: "4px",
+                    textAlign: "left",
+                    width: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    transition: "background 0.15s",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(224,32,32,0.1)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
+                >
+                  <PhoneOff style={{ width: 14, height: 14 }} />
+                  End Meeting
+                </button>
+              )}
+            </div>
+          )}
+        </div>
 
         <button className="toolbar-btn-end" onClick={handleEndMeeting}>
           <PhoneOff style={{ width: 18, height: 18 }} />
