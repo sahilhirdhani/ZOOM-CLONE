@@ -33,9 +33,14 @@ if env_path.exists():
 FRONTEND_URL = os.getenv("FRONTEND_URL")
 
 # CORS — allow frontend origin
+origins = []
+if FRONTEND_URL:
+    # Remove any trailing slashes to prevent CORS mismatches
+    origins.append(FRONTEND_URL.rstrip("/"))
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_URL],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
