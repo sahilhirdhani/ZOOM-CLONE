@@ -33,7 +33,7 @@ if env_path.exists():
 FRONTEND_URL = os.getenv("FRONTEND_URL")
 
 # CORS — allow frontend origin
-origins = []
+origins = ["http://localhost:3000"]
 if FRONTEND_URL:
     # Remove any trailing slashes to prevent CORS mismatches
     origins.append(FRONTEND_URL.rstrip("/"))
