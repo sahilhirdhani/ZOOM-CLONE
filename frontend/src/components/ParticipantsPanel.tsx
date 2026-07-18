@@ -68,20 +68,22 @@ export default function ParticipantsPanel({
         </button>
       </div>
 
-      <div className="participants-panel-actions">
-        <button
-          className="btn btn-sm btn-secondary"
-          onClick={onMuteAll}
-          style={{
-            background: "rgba(255,255,255,0.08)",
-            border: "1px solid rgba(255,255,255,0.1)",
-            color: "white",
-          }}
-        >
-          <MicOff style={{ width: 12, height: 12 }} />
-          Mute All
-        </button>
-      </div>
+      {onMuteAll && (
+        <div className="participants-panel-actions">
+          <button
+            className="btn btn-sm btn-secondary"
+            onClick={onMuteAll}
+            style={{
+              background: "rgba(255,255,255,0.08)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              color: "white",
+            }}
+          >
+            <MicOff style={{ width: 12, height: 12 }} />
+            Mute All
+          </button>
+        </div>
+      )}
 
       <div className="participants-panel-list">
         {/* Hosts */}
@@ -124,25 +126,29 @@ export default function ParticipantsPanel({
                 )}
               </div>
             </div>
-            <div className="participant-item-actions">
-              <button
-                className={`participant-action-btn ${mutedIds.includes(p.id) ? "muted" : ""}`}
-                title={mutedIds.includes(p.id) ? "Unmute" : "Mute"}
-                onClick={() => onMuteToggle?.(p.id)}
-                style={mutedIds.includes(p.id) ? { color: "#E02020", background: "rgba(224, 32, 32, 0.1)" } : {}}
-              >
-                <MicOff style={{ width: 14, height: 14 }} />
-              </button>
-              {onRemove && (
-                <button
-                  className="participant-action-btn danger"
-                  title="Remove"
-                  onClick={() => onRemove(p.id)}
-                >
-                  <UserMinus style={{ width: 14, height: 14 }} />
-                </button>
-              )}
-            </div>
+            {(onMuteToggle || onRemove) && (
+              <div className="participant-item-actions">
+                {onMuteToggle && (
+                  <button
+                    className={`participant-action-btn ${mutedIds.includes(p.id) ? "muted" : ""}`}
+                    title={mutedIds.includes(p.id) ? "Unmute" : "Mute"}
+                    onClick={() => onMuteToggle(p.id)}
+                    style={mutedIds.includes(p.id) ? { color: "#E02020", background: "rgba(224, 32, 32, 0.1)" } : {}}
+                  >
+                    <MicOff style={{ width: 14, height: 14 }} />
+                  </button>
+                )}
+                {onRemove && (
+                  <button
+                    className="participant-action-btn danger"
+                    title="Remove"
+                    onClick={() => onRemove(p.id)}
+                  >
+                    <UserMinus style={{ width: 14, height: 14 }} />
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         ))}
       </div>

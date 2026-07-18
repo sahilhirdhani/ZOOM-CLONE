@@ -25,6 +25,7 @@ export interface Participant {
   display_name: string;
   email: string | null;
   role: string;
+  is_muted: boolean;
   joined_at: string | null;
 }
 

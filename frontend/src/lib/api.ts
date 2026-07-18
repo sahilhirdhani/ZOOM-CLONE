@@ -56,8 +56,25 @@ export async function getParticipants(code: string): Promise<Participant[]> {
   return res.data;
 }
 
-export async function removeParticipant(participantId: number): Promise<void> {
-  await api.delete(`/meetings/participants/${participantId}`);
+export async function removeParticipant(participantId: number, requesterId?: number): Promise<void> {
+  const url = requesterId
+    ? `/meetings/participants/${participantId}?requester_id=${requesterId}`
+    : `/meetings/participants/${participantId}`;
+  await api.delete(url);
+}
+
+export async function muteParticipant(participantId: number, isMuted: boolean, requesterId?: number): Promise<void> {
+  const url = requesterId
+    ? `/meetings/participants/${participantId}/mute?is_muted=${isMuted}&requester_id=${requesterId}`
+    : `/meetings/participants/${participantId}/mute?is_muted=${isMuted}`;
+  await api.patch(url);
+}
+
+export async function muteAllParticipants(code: string, requesterId?: number): Promise<void> {
+  const url = requesterId
+    ? `/meetings/${code}/mute-all?requester_id=${requesterId}`
+    : `/meetings/${code}/mute-all`;
+  await api.patch(url);
 }
 
 export default api;

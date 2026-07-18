@@ -3,7 +3,8 @@ from sqlalchemy import (
     Integer,
     String,
     DateTime,
-    ForeignKey
+    ForeignKey,
+    Boolean
 )
 from sqlalchemy.orm import relationship
 
@@ -25,6 +26,8 @@ class Participant(Base):
     email = Column(String)
 
     role = Column(String, default="PARTICIPANT")
+
+    is_muted = Column(Boolean, default=False)
 
     joined_at = Column(DateTime(timezone=True))
 

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Video, LogIn } from "lucide-react";
 import { joinMeeting } from "@/lib/api";
+import { extractAndValidateMeetingCode } from "@/lib/utils";
 import "./join.css";
 
 export default function JoinPage() {
@@ -16,19 +17,25 @@ export default function JoinPage() {
 
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!meetingCode.trim() || !displayName.trim()) return;
+    const validatedCode = extractAndValidateMeetingCode(meetingCode);
+    if (!validatedCode) {
+      setError("Invalid Meeting ID or Invite Link format.");
+      return;
+    }
+    if (!displayName.trim()) return;
 
     setLoading(true);
     setError("");
     try {
-      await joinMeeting({
-        meeting_code: meetingCode.trim(),
+      const res = await joinMeeting({
+        meeting_code: validatedCode,
         display_name: displayName.trim(),
       });
-      router.push(`/meeting/${meetingCode.trim()}`);
+      sessionStorage.setItem(`meeting_participant_${validatedCode}`, res.participant_id.toString());
+      router.push(`/meeting/${validatedCode}`);
     } catch {
       setError(
-        "Meeting not found. Please check the Meeting ID and try again."
+        "Meeting not found. Please check the Meeting ID or Invite Link and try again."
       );
     } finally {
       setLoading(false);
@@ -51,15 +58,15 @@ export default function JoinPage() {
         </div>
 
         <h1>Join Meeting</h1>
-        <p>Enter the meeting ID and your name to join</p>
+        <p>Enter the meeting ID or invite link and your name to join</p>
 
         <form className="join-form" onSubmit={handleJoin}>
           <div className="form-group">
-            <label className="form-label">Meeting ID</label>
+            <label className="form-label">Meeting ID or Invite Link</label>
             <input
               type="text"
               className="form-input"
-              placeholder="Enter Meeting ID"
+              placeholder="Enter Meeting ID or Invite Link"
               value={meetingCode}
               onChange={(e) => setMeetingCode(e.target.value)}
               autoFocus

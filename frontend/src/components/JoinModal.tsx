@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { X, LogIn } from "lucide-react";
 import { joinMeeting } from "@/lib/api";
+import { extractAndValidateMeetingCode } from "@/lib/utils";
 import "./JoinModal.css";
 
 interface JoinModalProps {
@@ -19,17 +20,23 @@ export default function JoinModal({ isOpen, onClose }: JoinModalProps) {
   const [error, setError] = useState("");
 
   const handleJoin = async () => {
-    if (!meetingCode || !displayName) return;
+    const validatedCode = extractAndValidateMeetingCode(meetingCode);
+    if (!validatedCode) {
+      setError("Invalid Meeting ID or Invite Link format.");
+      return;
+    }
+    if (!displayName.trim()) return;
     setLoading(true);
     setError("");
     try {
-      await joinMeeting({
-        meeting_code: meetingCode.trim(),
+      const res = await joinMeeting({
+        meeting_code: validatedCode,
         display_name: displayName.trim(),
       });
-      router.push(`/meeting/${meetingCode.trim()}`);
+      sessionStorage.setItem(`meeting_participant_${validatedCode}`, res.participant_id.toString());
+      router.push(`/meeting/${validatedCode}`);
     } catch {
-      setError("Meeting not found. Please check the Meeting ID and try again.");
+      setError("Meeting not found. Please check the Meeting ID or Invite Link and try again.");
     } finally {
       setLoading(false);
     }
@@ -56,11 +63,11 @@ export default function JoinModal({ isOpen, onClose }: JoinModalProps) {
 
         <div className="modal-body">
           <div className="form-group">
-            <label className="form-label">Meeting ID *</label>
+            <label className="form-label">Meeting ID or Invite Link *</label>
             <input
               type="text"
               className="form-input"
-              placeholder="Enter Meeting ID (e.g., 123-4567-890)"
+              placeholder="Enter Meeting ID or Invite Link"
               value={meetingCode}
               onChange={(e) => setMeetingCode(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleJoin()}
@@ -89,7 +96,7 @@ export default function JoinModal({ isOpen, onClose }: JoinModalProps) {
           <button
             className="btn btn-md btn-primary"
             onClick={handleJoin}
-            disabled={loading || !meetingCode || !displayName}
+            disabled={loading || !meetingCode.trim() || !displayName.trim()}
           >
             <LogIn style={{ width: 14, height: 14 }} />
             {loading ? "Joining..." : "Join"}

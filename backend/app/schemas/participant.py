@@ -7,6 +7,7 @@ class ParticipantResponse(BaseModel):
     display_name: str
     email: str | None = None
     role: str
+    is_muted: bool = False
     joined_at: datetime | None = None
 
     model_config = {

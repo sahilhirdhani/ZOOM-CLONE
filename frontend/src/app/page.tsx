@@ -42,6 +42,12 @@ export default function Home() {
     fetchDashboard();
   }, [fetchDashboard]);
 
+  useEffect(() => {
+    if (data?.user) {
+      localStorage.setItem("zoom_user", JSON.stringify(data.user));
+    }
+  }, [data]);
+
   const handleStartMeeting = (meeting: Meeting) => {
     router.push(`/meeting/${meeting.meeting_code}`);
   };

@@ -23,6 +23,8 @@ import {
   getMeetingDetail,
   endMeeting,
   removeParticipant,
+  muteParticipant,
+  muteAllParticipants,
 } from "@/lib/api";
 import type { Meeting, Participant } from "@/lib/types";
 import "./meeting.css";
@@ -75,6 +77,28 @@ export default function MeetingRoomPage({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const [localParticipantId, setLocalParticipantId] = useState<number | null>(null);
+
+  useEffect(() => {
+    const storedId = sessionStorage.getItem(`meeting_participant_${code}`);
+    if (storedId) {
+      setLocalParticipantId(parseInt(storedId, 10));
+    } else {
+      const storedUser = localStorage.getItem("zoom_user");
+      if (storedUser && participants.length > 0) {
+        const user = JSON.parse(storedUser);
+        const hostPart = participants.find((p) => p.role === "HOST");
+        if (hostPart && (hostPart.email === user.email || hostPart.display_name === user.name)) {
+          setLocalParticipantId(hostPart.id);
+          sessionStorage.setItem(`meeting_participant_${code}`, hostPart.id.toString());
+        }
+      }
+    }
+  }, [code, participants]);
+
+  const localParticipant = participants.find((p) => p.id === localParticipantId);
+  const isHost = localParticipant?.role === "HOST";
+
   // Toolbar state
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
@@ -84,41 +108,46 @@ export default function MeetingRoomPage({
   // Muted participants tracking
   const [mutedIds, setMutedIds] = useState<number[]>([]);
 
-  const handleMuteToggle = (id: number) => {
-    const hostId = participants[0]?.id;
-    if (id === hostId) {
-      setIsMuted((prev) => {
-        const nextMuted = !prev;
-        setMutedIds((prevIds) =>
-          nextMuted
-            ? prevIds.includes(id) ? prevIds : [...prevIds, id]
-            : prevIds.filter((mid) => mid !== id)
-        );
-        return nextMuted;
-      });
-    } else {
+  const handleMuteToggle = async (id: number) => {
+    const isTargetMuted = mutedIds.includes(id);
+    const nextMuted = !isTargetMuted;
+    try {
+      await muteParticipant(id, nextMuted, localParticipantId || undefined);
       setMutedIds((prev) =>
-        prev.includes(id) ? prev.filter((mid) => mid !== id) : [...prev, id]
+        nextMuted ? (prev.includes(id) ? prev : [...prev, id]) : prev.filter((mid) => mid !== id)
       );
+      if (id === localParticipantId) {
+        setIsMuted(nextMuted);
+      }
+    } catch (err) {
+      console.error("Failed to toggle participant mute status:", err);
     }
   };
 
-  const handleMuteAll = () => {
-    const allIds = participants.map((p) => p.id);
-    setMutedIds(allIds);
-    setIsMuted(true);
+  const handleMuteAll = async () => {
+    try {
+      await muteAllParticipants(code, localParticipantId || undefined);
+      const allIds = participants.map((p) => p.id);
+      setMutedIds(allIds);
+    } catch (err) {
+      console.error("Failed to mute all participants:", err);
+    }
   };
 
-  const toggleLocalMute = () => {
+  const toggleLocalMute = async () => {
     const nextMuted = !isMuted;
     setIsMuted(nextMuted);
-    const hostId = participants[0]?.id;
-    if (hostId) {
-      setMutedIds((prev) =>
-        nextMuted
-          ? prev.includes(hostId) ? prev : [...prev, hostId]
-          : prev.filter((id) => id !== hostId)
-      );
+    if (localParticipantId) {
+      try {
+        await muteParticipant(localParticipantId, nextMuted, localParticipantId);
+        setMutedIds((prev) =>
+          nextMuted
+            ? prev.includes(localParticipantId) ? prev : [...prev, localParticipantId]
+            : prev.filter((id) => id !== localParticipantId)
+        );
+      } catch (err) {
+        console.error("Failed to toggle local mute on backend:", err);
+      }
     }
   };
 
@@ -140,7 +169,20 @@ export default function MeetingRoomPage({
 
   useEffect(() => {
     fetchMeeting();
+    const interval = setInterval(fetchMeeting, 2000);
+    return () => clearInterval(interval);
   }, [fetchMeeting]);
+
+  useEffect(() => {
+    const dbMutedIds = participants.filter((p) => p.is_muted).map((p) => p.id);
+    setMutedIds(dbMutedIds);
+    if (localParticipantId) {
+      const localPart = participants.find((p) => p.id === localParticipantId);
+      if (localPart) {
+        setIsMuted(localPart.is_muted);
+      }
+    }
+  }, [participants, localParticipantId]);
 
   // Timer
   useEffect(() => {
@@ -162,16 +204,20 @@ export default function MeetingRoomPage({
 
   const handleEndMeeting = async () => {
     try {
-      await endMeeting(code);
+      if (isHost) {
+        await endMeeting(code);
+      } else if (localParticipantId) {
+        await removeParticipant(localParticipantId, localParticipantId);
+      }
       router.push("/");
     } catch {
-      console.error("Failed to end meeting");
+      console.error("Failed to leave or end meeting");
     }
   };
 
   const handleRemoveParticipant = async (participantId: number) => {
     try {
-      await removeParticipant(participantId);
+      await removeParticipant(participantId, localParticipantId || undefined);
       setParticipants((prev) => prev.filter((p) => p.id !== participantId));
     } catch {
       console.error("Failed to remove participant");
@@ -286,7 +332,7 @@ export default function MeetingRoomPage({
               marginLeft: "12px",
             }}
           >
-            End
+            {isHost ? "End" : "Leave"}
           </button>
         </div>
       </div>
@@ -295,10 +341,10 @@ export default function MeetingRoomPage({
       <div className="meeting-room-content">
         {/* Video Grid */}
         <div className={`meeting-room-grid ${getGridClass(participants.length)}`}>
-          {participants.map((p, i) => (
+          {participants.map((p) => (
             <div
               key={p.id}
-              className={`participant-tile ${i === 0 ? "speaking" : ""}`}
+              className={`participant-tile ${p.id === localParticipantId ? "speaking" : ""}`}
             >
               <div
                 className="participant-tile-avatar"
@@ -307,7 +353,7 @@ export default function MeetingRoomPage({
                 {getInitials(p.display_name)}
               </div>
               <div className="participant-tile-name">
-                {(mutedIds.includes(p.id) || (isMuted && i === 0)) && (
+                {(mutedIds.includes(p.id) || (isMuted && p.id === localParticipantId)) && (
                   <MicOff style={{ width: 11, height: 11, color: "#E02020" }} />
                 )}
                 {p.display_name}
@@ -324,10 +370,10 @@ export default function MeetingRoomPage({
           participants={participants}
           isOpen={showParticipants}
           onClose={() => setShowParticipants(false)}
-          onRemove={handleRemoveParticipant}
+          onRemove={isHost ? handleRemoveParticipant : undefined}
           mutedIds={mutedIds}
-          onMuteToggle={handleMuteToggle}
-          onMuteAll={handleMuteAll}
+          onMuteToggle={isHost ? handleMuteToggle : undefined}
+          onMuteAll={isHost ? handleMuteAll : undefined}
         />
       </div>
 
@@ -384,7 +430,7 @@ export default function MeetingRoomPage({
 
         <button className="toolbar-btn-end" onClick={handleEndMeeting}>
           <PhoneOff style={{ width: 18, height: 18 }} />
-          End
+          <span>{isHost ? "End" : "Leave"}</span>
         </button>
       </div>
     </div>
