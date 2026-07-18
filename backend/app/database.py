@@ -1,12 +1,11 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-DATABSE_URL = "sqlite:///./zoom_clone.db"
+DATABASE_URL = "sqlite:///./zoom_clone.db"
 
 engine = create_engine(
-    DATABSE_URL,
-    connect_args={"check_same_thread":False},
-    # echo=True
+    DATABASE_URL,
+    connect_args={"check_same_thread": False},
 )
 
 SessionLocal = sessionmaker(
@@ -16,3 +15,12 @@ SessionLocal = sessionmaker(
 )
 
 Base = declarative_base()
+
+
+def get_db():
+    """Shared database session dependency for FastAPI routes."""
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

@@ -1,20 +1,17 @@
-# pyrefly: ignore [missing-import]
 from datetime import datetime, timedelta
-import uuid
 
 from app.database import SessionLocal
 from app.models.user import User
 from app.models.meeting import Meeting
 from app.models.participant import Participant
+from app.utils.meeting_id import generate_meeting_code
 
-def generate_meeting_code():
-    return uuid.uuid4().hex[:12].upper()
 
 def seed_database():
     db = SessionLocal()
 
     try:
-        #idempotent seeding
+        # Idempotent seeding
         if db.query(User).first():
             print("Database already seeded.")
             return
@@ -23,7 +20,7 @@ def seed_database():
             name="Sahil Hirdhani",
             email="sahilhirdhani@gmail.com",
             avatar="https://i.pravatar.cc/150?img=12",
-            plan="PRO",
+            plan="Pro",
             personal_meeting_id=generate_meeting_code(),
         )
 
@@ -35,48 +32,92 @@ def seed_database():
         meetings_data = [
             {
                 "title": "System Design Discussion",
-                "description": "Microservices Architecture",
+                "description": "Deep dive into microservices architecture and scaling strategies",
                 "status": "SCHEDULED",
                 "visibility": "PRIVATE",
-                "scheduled_at": now + timedelta(days=1),
+                "scheduled_at": now + timedelta(hours=3),
                 "duration": 60,
-                "participants": ["Alice", "Bob", "Charlie"],
+                "participants": [
+                    ("Alice Johnson", "alice@example.com"),
+                    ("Bob Smith", "bob@example.com"),
+                    ("Charlie Brown", "charlie@example.com"),
+                ],
             },
             {
                 "title": "Frontend Sprint Planning",
-                "description": "React Integration",
+                "description": "Plan the next sprint for React component migration",
                 "status": "SCHEDULED",
                 "visibility": "PRIVATE",
-                "scheduled_at": now + timedelta(hours=2),
+                "scheduled_at": now + timedelta(days=1, hours=2),
                 "duration": 45,
-                "participants": ["David", "Emma", "Sophia"],
+                "participants": [
+                    ("David Lee", "david@example.com"),
+                    ("Emma Wilson", "emma@example.com"),
+                    ("Sophia Davis", "sophia@example.com"),
+                ],
             },
             {
-                "title": "Project Demo",
-                "description": "Zoom Clone Demo",
+                "title": "Project Demo & Review",
+                "description": "Final demo of the Zoom Clone project to stakeholders",
                 "status": "SCHEDULED",
                 "visibility": "PUBLIC",
-                "scheduled_at": now + timedelta(days=7),
+                "scheduled_at": now + timedelta(days=3),
                 "duration": 90,
-                "participants": ["Noah", "Olivia", "Liam"],
+                "participants": [
+                    ("Noah Garcia", "noah@example.com"),
+                    ("Olivia Martinez", "olivia@example.com"),
+                    ("Liam Anderson", "liam@example.com"),
+                ],
+            },
+            {
+                "title": "Team Standup",
+                "description": "Daily standup — blockers and progress updates",
+                "status": "SCHEDULED",
+                "visibility": "PRIVATE",
+                "scheduled_at": now + timedelta(hours=1),
+                "duration": 15,
+                "participants": [
+                    ("Max Turner", "max@example.com"),
+                    ("Jane Cooper", "jane@example.com"),
+                ],
             },
             {
                 "title": "Daily Standup",
-                "description": "Yesterday Standup",
+                "description": "Yesterday's standup discussion",
                 "status": "COMPLETED",
                 "visibility": "PRIVATE",
                 "scheduled_at": now - timedelta(days=1),
                 "duration": 20,
-                "participants": ["John", "Jane", "Max"],
+                "participants": [
+                    ("John Miller", "john@example.com"),
+                    ("Jane Cooper", "jane@example.com"),
+                    ("Max Turner", "max@example.com"),
+                ],
             },
             {
                 "title": "Weekly Sync",
-                "description": "Weekly Team Sync",
+                "description": "Weekly team sync and retrospective",
                 "status": "COMPLETED",
                 "visibility": "PUBLIC",
                 "scheduled_at": now - timedelta(days=3),
                 "duration": 60,
-                "participants": ["Chris", "Sarah", "Alex"],
+                "participants": [
+                    ("Chris Evans", "chris@example.com"),
+                    ("Sarah Johnson", "sarah@example.com"),
+                    ("Alex Kim", "alex@example.com"),
+                ],
+            },
+            {
+                "title": "Design Review",
+                "description": "Review latest UI/UX mockups for the dashboard",
+                "status": "COMPLETED",
+                "visibility": "PRIVATE",
+                "scheduled_at": now - timedelta(days=5),
+                "duration": 45,
+                "participants": [
+                    ("Rachel Green", "rachel@example.com"),
+                    ("Monica Geller", "monica@example.com"),
+                ],
             },
         ]
 
@@ -90,7 +131,7 @@ def seed_database():
                 visibility=item["visibility"],
                 scheduled_at=item["scheduled_at"],
                 duration=item["duration"],
-                max_participants=20,
+                max_participants=100,
                 video_enabled=True,
                 chat_enabled=True,
                 screen_share_enabled=True,
@@ -101,7 +142,7 @@ def seed_database():
             db.add(meeting)
             db.flush()
 
-            #host
+            # Host as participant
             db.add(
                 Participant(
                     meeting_id=meeting.id,
@@ -112,17 +153,17 @@ def seed_database():
                 )
             )
 
-            # Participants
-            for name in item["participants"]:
-
+            # Other participants
+            for name, email in item["participants"]:
                 db.add(
                     Participant(
                         meeting_id=meeting.id,
                         display_name=name,
-                        email=f"{name.lower()}@example.com",
+                        email=email,
                         role="PARTICIPANT",
                     )
                 )
+
         db.commit()
         print("Database seeded successfully")
 
