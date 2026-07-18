@@ -4,6 +4,7 @@ export interface User {
   email: string;
   avatar: string;
   plan: string;
+  personal_meeting_id?: string;
 }
 
 export interface Meeting {

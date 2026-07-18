@@ -6,6 +6,7 @@ from app.seed import seed_database
 
 from app.routers.dashboard import router as dashboard_router
 from app.routers.meetings import router as meetings_router
+from app.routers.auth import router as auth_router
 
 from app.models import User, Meeting, Participant
 
@@ -52,5 +53,6 @@ def home():
     return {"message": "Zoom Clone API"}
 
 
+app.include_router(auth_router)
 app.include_router(dashboard_router)
 app.include_router(meetings_router)

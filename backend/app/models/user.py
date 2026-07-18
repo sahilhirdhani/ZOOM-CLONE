@@ -11,6 +11,7 @@ class User(Base):
     email = Column(String, unique=True, nullable=False)
     avatar = Column(String, nullable=False)
     plan = Column(String, nullable=False)
+    hashed_password = Column(String, nullable=False)
     personal_meeting_id = Column(String, unique=True, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

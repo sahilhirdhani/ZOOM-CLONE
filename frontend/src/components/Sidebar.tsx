@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Home,
@@ -29,25 +29,26 @@ interface SidebarProps {
 
 export default function Sidebar({ avatar }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [userAvatar, setUserAvatar] = useState(avatar || "");
+  const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
-    if (avatar) {
-      setUserAvatar(avatar);
+    const storedUser = localStorage.getItem("zoom_user");
+    if (!storedUser) {
+      router.push("/login");
       return;
     }
-    const storedUser = localStorage.getItem("zoom_user");
-    if (storedUser) {
-      try {
-        const parsed = JSON.parse(storedUser);
-        if (parsed.avatar) {
-          setUserAvatar(parsed.avatar);
-        }
-      } catch (err) {
-        console.error("Failed to parse zoom_user", err);
+    
+    try {
+      const parsed = JSON.parse(storedUser);
+      if (parsed.avatar) {
+        setUserAvatar(parsed.avatar);
       }
+    } catch (err) {
+      console.error("Failed to parse zoom_user", err);
     }
-  }, [avatar]);
+  }, [avatar, router]);
 
   return (
     <aside className="sidebar">
@@ -93,8 +94,39 @@ export default function Sidebar({ avatar }: SidebarProps) {
             <span>Settings</span>
           </Link>
           {userAvatar && (
-            <div className="sidebar-avatar">
-              <img src={userAvatar} alt="Profile" />
+            <div 
+              className="sidebar-avatar-container" 
+              onClick={() => setShowDropdown(!showDropdown)}
+            >
+              <div className="sidebar-avatar">
+                <img src={userAvatar} alt="Profile" />
+              </div>
+
+              {showDropdown && (
+                <div className="sidebar-dropdown-menu">
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowDropdown(false);
+                      router.push("/settings");
+                    }}
+                    className="dropdown-item"
+                  >
+                    Edit Profile
+                  </button>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowDropdown(false);
+                      localStorage.removeItem("zoom_user");
+                      router.push("/login");
+                    }}
+                    className="dropdown-item logout"
+                  >
+                    Log Out
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>

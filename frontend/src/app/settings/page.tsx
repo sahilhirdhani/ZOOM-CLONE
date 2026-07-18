@@ -21,6 +21,15 @@ import { getDashboard } from "@/lib/api";
 import type { User as UserType } from "@/lib/types";
 import "./settings.css";
 
+const PRESET_AVATARS = [
+  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&h=150&q=80",
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&h=150&q=80",
+  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&h=150&q=80",
+  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&h=150&q=80",
+  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&h=150&q=80",
+  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&h=150&q=80",
+];
+
 interface SettingToggle {
   id: string;
   label: string;
@@ -33,6 +42,12 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState("profile");
   const [saved, setSaved] = useState(false);
+  
+  // Profile form states
+  const [name, setName] = useState("");
+  const [avatar, setAvatar] = useState("");
+  const [plan, setPlan] = useState("Basic");
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
 
   const [settings, setSettings] = useState({
     notifications: true,
@@ -51,8 +66,20 @@ export default function SettingsPage() {
 
   const fetchUser = useCallback(async () => {
     try {
-      const data = await getDashboard();
-      setUser(data.user);
+      const storedUser = localStorage.getItem("zoom_user");
+      if (storedUser) {
+        const parsed = JSON.parse(storedUser);
+        setUser(parsed);
+        setName(parsed.name || "");
+        setAvatar(parsed.avatar || "");
+        setPlan(parsed.plan || "Basic");
+      } else {
+        const data = await getDashboard();
+        setUser(data.user);
+        setName(data.user.name || "");
+        setAvatar(data.user.avatar || "");
+        setPlan(data.user.plan || "Basic");
+      }
     } catch (err) {
       console.error("Failed to fetch user:", err);
     } finally {
@@ -62,13 +89,48 @@ export default function SettingsPage() {
 
   useEffect(() => {
     fetchUser();
+    
+    // Load theme from localStorage
+    const savedTheme = localStorage.getItem("zoom_theme") || "light";
+    setSettings((prev) => ({ ...prev, darkMode: savedTheme === "dark" }));
+    document.documentElement.setAttribute("data-theme", savedTheme);
   }, [fetchUser]);
 
+  useEffect(() => {
+    const handleThemeChange = () => {
+      const savedTheme = localStorage.getItem("zoom_theme") || "light";
+      setSettings((prev) => ({ ...prev, darkMode: savedTheme === "dark" }));
+    };
+
+    window.addEventListener("themechange", handleThemeChange);
+    return () => {
+      window.removeEventListener("themechange", handleThemeChange);
+    };
+  }, []);
+
   const handleToggle = (key: keyof typeof settings) => {
-    setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
+    setSettings((prev) => {
+      const newVal = !prev[key];
+      if (key === "darkMode") {
+        const themeStr = newVal ? "dark" : "light";
+        localStorage.setItem("zoom_theme", themeStr);
+        document.documentElement.setAttribute("data-theme", themeStr);
+      }
+      return { ...prev, [key]: newVal };
+    });
   };
 
   const handleSave = () => {
+    if (user) {
+      const updatedUser = {
+        ...user,
+        name: name,
+        avatar: avatar,
+        plan: plan,
+      };
+      setUser(updatedUser);
+      localStorage.setItem("zoom_user", JSON.stringify(updatedUser));
+    }
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -119,18 +181,67 @@ export default function SettingsPage() {
                     <p className="settings-section-desc">Manage your personal information and account</p>
 
                     <div className="settings-profile-card">
-                      <div className="settings-profile-avatar">
-                        {user?.avatar ? (
-                          <img src={user.avatar} alt={user.name} />
-                        ) : (
-                          <span>{user?.name?.charAt(0) || "?"}</span>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
+                        <div className="settings-profile-avatar" style={{ position: "relative" }}>
+                          {avatar ? (
+                            <img src={avatar} alt={name} />
+                          ) : (
+                            <span>{name.charAt(0) || "?"}</span>
+                          )}
+                          <button 
+                            type="button" 
+                            className="settings-avatar-edit"
+                            onClick={() => setShowAvatarPicker(!showAvatarPicker)}
+                          >
+                            Edit
+                          </button>
+                        </div>
+                        
+                        {showAvatarPicker && (
+                          <div className="settings-avatar-grid" style={{
+                            display: "grid",
+                            gridTemplateColumns: "repeat(3, 1fr)",
+                            gap: 8,
+                            padding: 8,
+                            background: "rgba(255,255,255,0.04)",
+                            borderRadius: 8,
+                            border: "1px solid rgba(255,255,255,0.08)"
+                          }}>
+                            {PRESET_AVATARS.map((av) => (
+                              <button
+                                key={av}
+                                type="button"
+                                onClick={() => {
+                                  setAvatar(av);
+                                  setShowAvatarPicker(false);
+                                }}
+                                style={{
+                                  width: 32,
+                                  height: 32,
+                                  borderRadius: "50%",
+                                  overflow: "hidden",
+                                  border: avatar === av ? "2px solid var(--zoom-blue)" : "2px solid transparent",
+                                  padding: 0,
+                                  cursor: "pointer",
+                                  background: "none"
+                                }}
+                              >
+                                <img src={av} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                              </button>
+                            ))}
+                          </div>
                         )}
-                        <button className="settings-avatar-edit">Edit</button>
                       </div>
+
                       <div className="settings-profile-info">
                         <div className="form-group">
                           <label className="form-label">Full Name</label>
-                          <input className="form-input" defaultValue={user?.name || ""} id="settings-name-input" />
+                          <input 
+                            className="form-input" 
+                            value={name} 
+                            onChange={(e) => setName(e.target.value)} 
+                            id="settings-name-input" 
+                          />
                         </div>
                         <div className="form-group">
                           <label className="form-label">Email</label>
@@ -139,14 +250,19 @@ export default function SettingsPage() {
                         <div className="form-row">
                           <div className="form-group">
                             <label className="form-label">Plan</label>
-                            <div className="settings-plan-badge">
-                              <Shield style={{ width: 14, height: 14 }} />
-                              {user?.plan || "Basic"}
-                            </div>
+                            <select 
+                              className="form-select" 
+                              value={plan} 
+                              onChange={(e) => setPlan(e.target.value)}
+                            >
+                              <option value="Basic">Basic</option>
+                              <option value="Pro">Pro</option>
+                              <option value="Business">Business</option>
+                            </select>
                           </div>
                           <div className="form-group">
                             <label className="form-label">Personal Meeting ID</label>
-                            <input className="form-input" defaultValue="545-123-7890" disabled />
+                            <input className="form-input" defaultValue={user?.personal_meeting_id || "545-123-7890"} disabled />
                           </div>
                         </div>
                       </div>

@@ -26,6 +26,7 @@ export default function Home() {
   const [showNewMeeting, setShowNewMeeting] = useState(false);
   const [showSchedule, setShowSchedule] = useState(false);
   const [showJoin, setShowJoin] = useState(false);
+  const [localUser, setLocalUser] = useState<any>(null);
 
   const fetchDashboard = useCallback(async () => {
     try {
@@ -43,8 +44,12 @@ export default function Home() {
   }, [fetchDashboard]);
 
   useEffect(() => {
-    if (data?.user) {
+    const stored = localStorage.getItem("zoom_user");
+    if (stored) {
+      setLocalUser(JSON.parse(stored));
+    } else if (data?.user) {
       localStorage.setItem("zoom_user", JSON.stringify(data.user));
+      setLocalUser(data.user);
     }
   }, [data]);
 
@@ -91,14 +96,14 @@ export default function Home() {
 
   return (
     <>
-      <Sidebar avatar={data?.user.avatar} />
+      <Sidebar avatar={localUser?.avatar || data?.user.avatar} />
       <TopBar title="Home" />
 
       <main className="main-content">
         {/* Header */}
         <div className="dashboard-header">
           <h1>
-            {formatCurrentTime()} — Welcome, {data?.user.name?.split(" ")[0]}
+            {formatCurrentTime()} — Welcome, {localUser?.name?.split(" ")[0] || data?.user.name?.split(" ")[0]}
           </h1>
           <p className="subtitle">{formatCurrentDate()}</p>
         </div>

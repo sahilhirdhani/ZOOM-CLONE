@@ -5,6 +5,7 @@ from app.models.user import User
 from app.models.meeting import Meeting
 from app.models.participant import Participant
 from app.utils.meeting_id import generate_meeting_code
+from app.utils.security import hash_password
 
 
 def seed_database():
@@ -21,6 +22,7 @@ def seed_database():
             email="sahilhirdhani@gmail.com",
             avatar="https://i.pravatar.cc/150?img=12",
             plan="Pro",
+            hashed_password=hash_password("password123"),
             personal_meeting_id=generate_meeting_code(),
         )
 

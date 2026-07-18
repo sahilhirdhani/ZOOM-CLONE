@@ -18,6 +18,21 @@ const api = axios.create({
   },
 });
 
+api.interceptors.request.use((config) => {
+  if (typeof window !== "undefined") {
+    const storedUser = localStorage.getItem("zoom_user");
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        config.headers["X-User-Id"] = user.id.toString();
+      } catch (e) {
+        console.error("Failed to parse user for request interceptor", e);
+      }
+    }
+  }
+  return config;
+});
+
 export async function getDashboard(): Promise<DashboardData> {
   const res = await api.get("/dashboard");
   return res.data;
@@ -99,6 +114,16 @@ export async function sendMessage(code: string, senderName: string, content: str
 
 export async function getMessages(code: string): Promise<Message[]> {
   const res = await api.get(`/meetings/${code}/messages`);
+  return res.data;
+}
+
+export async function signUp(data: any): Promise<any> {
+  const res = await api.post("/auth/signup", data);
+  return res.data;
+}
+
+export async function logIn(data: any): Promise<any> {
+  const res = await api.post("/auth/login", data);
   return res.data;
 }
 
