@@ -12,6 +12,7 @@ A full-stack **Zoom-like video conferencing web application** built with **Next.
 ## ✨ Features
 
 ### Core Features
+- **🔑 User Authentication & Account Creation** — Secure sign-up/sign-in with name, email, encrypted password, custom avatar picker, and subscription plan selection
 - **📋 Landing Dashboard** — Professional Zoom-style home page with welcome header, action cards, and meeting lists
 - **🎬 Instant Meeting** — Create meetings instantly with auto-generated Meeting IDs and shareable invite links
 - **🔗 Join Meeting** — Join via Meeting ID or direct invite link with display name entry
@@ -20,6 +21,7 @@ A full-stack **Zoom-like video conferencing web application** built with **Next.
 - **🎛️ Host Controls** — Mute all, remove participants, end meeting
 
 ### Bonus Features
+- **🌓 Adaptive Light/Dark Theme System** — Global theme switcher with local storage persistence, theme-aware login/signup cards, and top bar quick toggle
 - **📱 Responsive Design** — Works across desktop, tablet, and mobile
 - **🎨 Pixel-perfect Zoom UI** — Faithful recreation of Zoom Workplace's design language
 - **⚡ Real-time Timer** — Live meeting duration counter
