@@ -8,8 +8,11 @@ class Message(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     meeting_id = Column(Integer, ForeignKey("meetings.id"), nullable=False)
+    sender_id = Column(Integer, ForeignKey("participants.id", ondelete="SET NULL"), nullable=True)
     sender_name = Column(String, nullable=False)
     content = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     meeting = relationship("Meeting")
+    sender = relationship("Participant", back_populates="messages")
+

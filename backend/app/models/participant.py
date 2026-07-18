@@ -41,3 +41,7 @@ class Participant(Base):
         "Meeting",
         back_populates="participants"
     )
+    messages = relationship(
+        "Message",
+        back_populates="sender"
+    )

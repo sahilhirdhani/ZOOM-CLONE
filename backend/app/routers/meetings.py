@@ -16,14 +16,11 @@ from app.services.meeting_service import (
     join_meeting,
     get_meeting_detail,
     end_meeting,
-    remove_participant_from_meeting,
 )
 from app.crud.participant import get_participants_by_meeting
 from app.crud.meeting import get_meeting_by_code
-
-from app.models.participant import Participant
-from app.models.message import Message
 from app.schemas.message import MessageResponse, MessageCreate
+from app.services import participant_service, message_service
 
 router = APIRouter(
     prefix="/meetings",
@@ -34,15 +31,13 @@ router = APIRouter(
 @router.post("/instant", response_model=InstantMeetingResponse)
 def instant_meeting(db: Session = Depends(get_db)):
     """Create an instant meeting."""
-    result = create_instant_meeting(db)
-    return result
+    return create_instant_meeting(db)
 
 
 @router.post("/schedule", response_model=InstantMeetingResponse)
 def schedule(data: ScheduleMeetingRequest, db: Session = Depends(get_db)):
     """Schedule a future meeting."""
-    result = schedule_meeting(db, data)
-    return result
+    return schedule_meeting(db, data)
 
 
 @router.post("/join", response_model=JoinMeetingResponse)
@@ -80,7 +75,7 @@ def end(code: str, db: Session = Depends(get_db)):
 
 @router.get("/{code}/participants", response_model=list[ParticipantResponse])
 def participants(code: str, db: Session = Depends(get_db)):
-    """List participants in a meeting."""
+    """List active participants in a meeting."""
     meeting = get_meeting_by_code(db, code)
     if not meeting:
         raise HTTPException(status_code=404, detail="Meeting not found")
@@ -90,22 +85,7 @@ def participants(code: str, db: Session = Depends(get_db)):
 @router.delete("/participants/{participant_id}")
 def remove_participant(participant_id: int, requester_id: int = None, db: Session = Depends(get_db)):
     """Remove a participant (host control)."""
-    target = db.query(Participant).filter(Participant.id == participant_id).first()
-    if not target:
-        raise HTTPException(status_code=404, detail="Participant not found")
-    
-    if requester_id is not None:
-        if requester_id == participant_id:
-            # A participant can always remove themselves (leave)
-            pass
-        else:
-            requester = db.query(Participant).filter(Participant.id == requester_id).first()
-            if not requester or requester.meeting_id != target.meeting_id or requester.role != "HOST":
-                raise HTTPException(status_code=403, detail="Only the host can remove participants")
-    else:
-        raise HTTPException(status_code=403, detail="Requester ID is required to verify privileges")
-
-    success = remove_participant_from_meeting(db, participant_id)
+    success = participant_service.remove_participant_from_meeting(db, participant_id, requester_id)
     if not success:
         raise HTTPException(status_code=404, detail="Participant not found")
     return {"message": "Participant removed"}
@@ -119,27 +99,8 @@ def mute_participant(
     db: Session = Depends(get_db)
 ):
     """Mute or unmute a specific participant (host or self control)."""
-    target = db.query(Participant).filter(Participant.id == participant_id).first()
-    if not target:
-        raise HTTPException(status_code=404, detail="Participant not found")
-    
-    # Check permissions
-    if requester_id is not None:
-        if requester_id == participant_id:
-            # Self-muting is allowed
-            pass
-        else:
-            # Only host can mute others
-            requester = db.query(Participant).filter(Participant.id == requester_id).first()
-            if not requester or requester.meeting_id != target.meeting_id or requester.role != "HOST":
-                raise HTTPException(status_code=403, detail="Only the host can mute other participants")
-    else:
-        raise HTTPException(status_code=403, detail="Requester ID is required to verify privileges")
-    
-    target.is_muted = is_muted
-    db.commit()
-    db.refresh(target)
-    return {"message": "Participant mute status updated", "is_muted": target.is_muted}
+    result = participant_service.toggle_mute_status(db, participant_id, is_muted, requester_id)
+    return {"message": "Participant mute status updated", "is_muted": result.is_muted}
 
 
 @router.patch("/{code}/mute-all")
@@ -149,22 +110,7 @@ def mute_all_participants(
     db: Session = Depends(get_db)
 ):
     """Mute all participants in a meeting (host control)."""
-    meeting = get_meeting_by_code(db, code)
-    if not meeting:
-        raise HTTPException(status_code=404, detail="Meeting not found")
-        
-    if requester_id is not None:
-        requester = db.query(Participant).filter(Participant.id == requester_id).first()
-        if not requester or requester.meeting_id != meeting.id or requester.role != "HOST":
-            raise HTTPException(status_code=403, detail="Only the host can mute all participants")
-    else:
-        raise HTTPException(status_code=403, detail="Requester ID is required to verify host privileges")
-        
-    attendees = db.query(Participant).filter(Participant.meeting_id == meeting.id, Participant.role != "HOST").all()
-    for attendee in attendees:
-        attendee.is_muted = True
-    db.commit()
-    return {"message": "All participants muted"}
+    return participant_service.mute_all_meeting_participants(db, code, requester_id)
 
 
 @router.patch("/participants/{participant_id}/raise-hand")
@@ -174,13 +120,8 @@ def raise_hand(
     db: Session = Depends(get_db)
 ):
     """Raise or lower hand."""
-    target = db.query(Participant).filter(Participant.id == participant_id).first()
-    if not target:
-        raise HTTPException(status_code=404, detail="Participant not found")
-    target.raised_hand = raised
-    db.commit()
-    db.refresh(target)
-    return {"message": "Hand status updated", "raised_hand": target.raised_hand}
+    result = participant_service.update_hand_status(db, participant_id, raised)
+    return {"message": "Hand status updated", "raised_hand": result.raised_hand}
 
 
 @router.patch("/participants/{participant_id}/react")
@@ -190,13 +131,8 @@ def react(
     db: Session = Depends(get_db)
 ):
     """Submit a reaction emoji."""
-    target = db.query(Participant).filter(Participant.id == participant_id).first()
-    if not target:
-        raise HTTPException(status_code=404, detail="Participant not found")
-    target.reaction = reaction
-    db.commit()
-    db.refresh(target)
-    return {"message": "Reaction updated", "reaction": target.reaction}
+    result = participant_service.update_reaction(db, participant_id, reaction)
+    return {"message": "Reaction updated", "reaction": result.reaction}
 
 
 @router.post("/{code}/messages", response_model=MessageResponse)
@@ -206,19 +142,7 @@ def send_message(
     db: Session = Depends(get_db)
 ):
     """Send a chat message in the meeting."""
-    meeting = get_meeting_by_code(db, code)
-    if not meeting:
-        raise HTTPException(status_code=404, detail="Meeting not found")
-        
-    msg = Message(
-        meeting_id=meeting.id,
-        sender_name=data.sender_name,
-        content=data.content
-    )
-    db.add(msg)
-    db.commit()
-    db.refresh(msg)
-    return msg
+    return message_service.send_meeting_message(db, code, data)
 
 
 @router.get("/{code}/messages", response_model=list[MessageResponse])
@@ -227,8 +151,5 @@ def get_messages(
     db: Session = Depends(get_db)
 ):
     """Retrieve all chat messages in a meeting."""
-    meeting = get_meeting_by_code(db, code)
-    if not meeting:
-        raise HTTPException(status_code=404, detail="Meeting not found")
-        
-    return db.query(Message).filter(Message.meeting_id == meeting.id).order_by(Message.created_at.asc()).all()
+    return message_service.get_meeting_messages(db, code)
+

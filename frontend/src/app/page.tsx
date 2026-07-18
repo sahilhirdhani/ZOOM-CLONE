@@ -2,23 +2,18 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Video,
-  Plus,
-  Calendar as CalendarIcon,
-  LogIn,
-  CalendarDays,
-  AlertCircle,
-} from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import "./page.css";
 import TopBar from "@/components/TopBar";
-import MeetingCard from "@/components/MeetingCard";
 import NewMeetingModal from "@/components/NewMeetingModal";
 import ScheduleModal from "@/components/ScheduleModal";
 import JoinModal from "@/components/JoinModal";
 import { getDashboard } from "@/lib/api";
 import type { DashboardData, Meeting } from "@/lib/types";
+
+// Extracted Sub-components
+import ActionCards from "./components/ActionCards";
+import DashboardMeetingSections from "./components/DashboardMeetingSections";
 
 export default function Home() {
   const router = useRouter();
@@ -110,152 +105,18 @@ export default function Home() {
         </div>
 
         {/* Action Cards */}
-        <div className="action-cards">
-          <button
-            className="action-card new-meeting"
-            onClick={() => setShowNewMeeting(true)}
-            id="btn-new-meeting"
-          >
-            <div className="action-card-icon">
-              <Video />
-            </div>
-            <span className="action-card-label">New Meeting</span>
-          </button>
+        <ActionCards
+          onNewMeeting={() => setShowNewMeeting(true)}
+          onJoin={() => setShowJoin(true)}
+          onSchedule={() => setShowSchedule(true)}
+        />
 
-          <button
-            className="action-card join"
-            onClick={() => setShowJoin(true)}
-            id="btn-join-meeting"
-          >
-            <div className="action-card-icon">
-              <Plus />
-            </div>
-            <span className="action-card-label">Join</span>
-          </button>
-
-          <button
-            className="action-card schedule"
-            onClick={() => setShowSchedule(true)}
-            id="btn-schedule-meeting"
-          >
-            <div className="action-card-icon">
-              <CalendarIcon />
-            </div>
-            <span className="action-card-label">Schedule</span>
-          </button>
-        </div>
-
-        {/* Upcoming Meetings */}
-        <section className="meetings-section">
-          <div className="meetings-section-header">
-            <h2>
-              <CalendarDays
-                style={{
-                  width: 18,
-                  height: 18,
-                  display: "inline",
-                  verticalAlign: "text-bottom",
-                  marginRight: 8,
-                  color: "var(--zoom-blue)",
-                }}
-              />
-              Upcoming Meetings
-            </h2>
-            <span className="count">
-              {data?.upcoming_meetings.length || 0} meetings
-            </span>
-          </div>
-
-          {data?.upcoming_meetings.length ? (
-            data.upcoming_meetings.map((m) => (
-              <MeetingCard
-                key={m.id}
-                meeting={m}
-                onStart={handleStartMeeting}
-                onCopyLink={handleCopyLink}
-              />
-            ))
-          ) : (
-            <div className="empty-state">
-              <CalendarIcon />
-              <p>No upcoming meetings</p>
-            </div>
-          )}
-        </section>
-
-        {/* Recent Meetings */}
-        <section className="meetings-section">
-          <div className="meetings-section-header">
-            <h2>
-              <LogIn
-                style={{
-                  width: 18,
-                  height: 18,
-                  display: "inline",
-                  verticalAlign: "text-bottom",
-                  marginRight: 8,
-                  color: "var(--zoom-text-tertiary)",
-                }}
-              />
-              Recent Meetings
-            </h2>
-            <span className="count">
-              {data?.recent_meetings.length || 0} meetings
-            </span>
-          </div>
-
-          {data?.recent_meetings.length ? (
-            data.recent_meetings.map((m) => (
-              <MeetingCard
-                key={m.id}
-                meeting={m}
-                onCopyLink={handleCopyLink}
-              />
-            ))
-          ) : (
-            <div className="empty-state">
-              <Video />
-              <p>No recent meetings</p>
-            </div>
-          )}
-        </section>
-
-        {/* Missed Meetings */}
-        <section className="meetings-section">
-          <div className="meetings-section-header">
-            <h2>
-              <AlertCircle
-                style={{
-                  width: 18,
-                  height: 18,
-                  display: "inline",
-                  verticalAlign: "text-bottom",
-                  marginRight: 8,
-                  color: "var(--zoom-red)",
-                }}
-              />
-              Missed Meetings
-            </h2>
-            <span className="count">
-              {data?.missed_meetings?.length || 0} meetings
-            </span>
-          </div>
-
-          {data?.missed_meetings?.length ? (
-            data.missed_meetings.map((m) => (
-              <MeetingCard
-                key={m.id}
-                meeting={m}
-                onCopyLink={handleCopyLink}
-              />
-            ))
-          ) : (
-            <div className="empty-state">
-              <CalendarIcon style={{ color: "var(--zoom-red)", opacity: 0.3 }} />
-              <p>No missed meetings</p>
-            </div>
-          )}
-        </section>
+        {/* Meeting Sections */}
+        <DashboardMeetingSections
+          data={data}
+          handleStartMeeting={handleStartMeeting}
+          handleCopyLink={handleCopyLink}
+        />
       </main>
 
       {/* Modals */}

@@ -2,22 +2,6 @@
 
 import { useState, useEffect, useCallback, use } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Mic,
-  MicOff,
-  Video,
-  VideoOff,
-  Monitor,
-  Users,
-  MessageSquare,
-  Shield,
-  PhoneOff,
-  MoreHorizontal,
-  Hand,
-  Smile,
-  Copy,
-  Check,
-} from "lucide-react";
 import ParticipantsPanel from "@/components/ParticipantsPanel";
 import ChatPanel from "@/components/ChatPanel";
 import {
@@ -33,6 +17,11 @@ import {
 } from "@/lib/api";
 import type { Meeting, Participant, Message } from "@/lib/types";
 import "./meeting.css";
+
+// Extracted Sub-components
+import MeetingHeader from "./components/MeetingHeader";
+import VideoGrid from "./components/VideoGrid";
+import MeetingToolbar from "./components/MeetingToolbar";
 
 const avatarColors = [
   "#0B5CFF",
@@ -329,137 +318,29 @@ export default function MeetingRoomPage({
   return (
     <div className="meeting-room">
       {/* Header */}
-      <div className="meeting-room-header">
-        <div className="meeting-room-header-left">
-          <div className="meeting-room-shield">
-            <Shield />
-            <span>Encrypted</span>
-          </div>
-          <span
-            style={{
-              color: "rgba(255,255,255,0.2)",
-              fontSize: 12,
-            }}
-          >
-            |
-          </span>
-          <span className="meeting-room-title">{meeting.title}</span>
-        </div>
-        <div className="meeting-room-header-right">
-          <button
-            onClick={handleCopyLink}
-            style={{
-              background: "none",
-              border: "none",
-              color: "rgba(255,255,255,0.6)",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: 4,
-              fontSize: 12,
-              padding: "4px 8px",
-              borderRadius: 4,
-            }}
-            title="Copy meeting link"
-          >
-            {copied ? (
-              <Check style={{ width: 13, height: 13 }} />
-            ) : (
-              <Copy style={{ width: 13, height: 13 }} />
-            )}
-            <span className="meeting-code-text">{meeting.meeting_code}</span>
-          </button>
-          <span className="meeting-room-timer">{formatElapsed(elapsed)}</span>
-          <button
-            className="mobile-end-btn"
-            onClick={handleEndMeeting}
-            style={{
-              background: "#E02020",
-              color: "white",
-              border: "none",
-              padding: "4px 12px",
-              borderRadius: "4px",
-              fontSize: "12px",
-              fontWeight: "600",
-              cursor: "pointer",
-              marginLeft: "12px",
-            }}
-          >
-            {isHost ? "End" : "Leave"}
-          </button>
-        </div>
-      </div>
+      <MeetingHeader
+        meetingTitle={meeting.title}
+        meetingCode={meeting.meeting_code}
+        elapsedTime={elapsed}
+        formatElapsed={formatElapsed}
+        handleCopyLink={handleCopyLink}
+        copied={copied}
+        handleEndMeeting={handleEndMeeting}
+        isHost={isHost}
+      />
 
       {/* Content */}
       <div className="meeting-room-content">
         {/* Video Grid */}
-        <div className={`meeting-room-grid ${getGridClass(participants.length)}`}>
-          {participants.map((p) => (
-            <div
-              key={p.id}
-              className={`participant-tile ${p.id === localParticipantId ? "speaking" : ""}`}
-              style={{ position: "relative" }}
-            >
-              {p.reaction && (
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 12,
-                    right: 12,
-                    background: "rgba(0,0,0,0.6)",
-                    borderRadius: "50%",
-                    width: 36,
-                    height: 36,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 20,
-                    zIndex: 10,
-                  }}
-                >
-                  {p.reaction}
-                </div>
-              )}
-              {p.raised_hand && (
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 12,
-                    left: 12,
-                    background: "#F5A623",
-                    color: "white",
-                    borderRadius: "4px",
-                    padding: "2px 6px",
-                    fontSize: 11,
-                    fontWeight: "bold",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 4,
-                    zIndex: 10,
-                  }}
-                  title="Hand Raised"
-                >
-                  🖐️ Raised
-                </div>
-              )}
-              <div
-                className="participant-tile-avatar"
-                style={{ background: getAvatarColor(p.display_name) }}
-              >
-                {getInitials(p.display_name)}
-              </div>
-              <div className="participant-tile-name">
-                {(mutedIds.includes(p.id) || (isMuted && p.id === localParticipantId)) && (
-                  <MicOff style={{ width: 11, height: 11, color: "#E02020" }} />
-                )}
-                {p.display_name}
-                {p.role === "HOST" && (
-                  <span style={{ fontSize: 10, opacity: 0.6 }}>(Host)</span>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+        <VideoGrid
+          participants={participants}
+          localParticipantId={localParticipantId}
+          mutedIds={mutedIds}
+          isMuted={isMuted}
+          getGridClass={getGridClass}
+          getAvatarColor={getAvatarColor}
+          getInitials={getInitials}
+        />
 
         {/* Participants Panel */}
         <ParticipantsPanel
@@ -482,205 +363,26 @@ export default function MeetingRoomPage({
       </div>
 
       {/* Toolbar */}
-      <div className="meeting-toolbar">
-        <button
-          className={`toolbar-btn ${isMuted ? "muted" : ""}`}
-          onClick={toggleLocalMute}
-        >
-          {isMuted ? <MicOff /> : <Mic />}
-          <span>{isMuted ? "Unmute" : "Mute"}</span>
-        </button>
-
-        <button
-          className={`toolbar-btn ${isVideoOff ? "muted" : ""}`}
-          onClick={() => setIsVideoOff(!isVideoOff)}
-        >
-          {isVideoOff ? <VideoOff /> : <Video />}
-          <span>{isVideoOff ? "Start Video" : "Stop Video"}</span>
-        </button>
-
-        <button className="toolbar-btn">
-          <Monitor />
-          <span>Share</span>
-        </button>
-
-        <button
-          className={`toolbar-btn ${showParticipants ? "active" : ""}`}
-          onClick={() => {
-            setShowParticipants(!showParticipants);
-            setShowChat(false);
-          }}
-        >
-          <Users />
-          <span>Participants</span>
-        </button>
-
-        <button
-          className={`toolbar-btn ${showChat ? "active" : ""}`}
-          onClick={() => {
-            setShowChat(!showChat);
-            setShowParticipants(false);
-          }}
-        >
-          <MessageSquare />
-          <span>Chat</span>
-        </button>
-
-        <button
-          className={`toolbar-btn ${isHandRaised ? "active" : ""}`}
-          onClick={handleToggleHand}
-          style={isHandRaised ? { color: "#F5A623" } : {}}
-        >
-          <Hand />
-          <span>{isHandRaised ? "Lower Hand" : "Raise Hand"}</span>
-        </button>
-
-        <div style={{ position: "relative" }}>
-          <button
-            className={`toolbar-btn ${showReactionsMenu ? "active" : ""}`}
-            onClick={() => setShowReactionsMenu(!showReactionsMenu)}
-          >
-            <Smile />
-            <span>Reactions</span>
-          </button>
-          {showReactionsMenu && (
-            <div
-              className="reactions-menu"
-              style={{
-                position: "absolute",
-                bottom: "70px",
-                left: "50%",
-                transform: "translateX(-50%)",
-                background: "#2D2D30",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
-                borderRadius: "8px",
-                padding: "8px",
-                display: "flex",
-                gap: "8px",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-                zIndex: 100,
-              }}
-            >
-              {["👏", "👍", "❤️", "😂", "😮", "🎉"].map((emoji) => (
-                <button
-                  key={emoji}
-                  onClick={() => handleSendReaction(emoji)}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    fontSize: "20px",
-                    cursor: "pointer",
-                    padding: "4px",
-                    borderRadius: "4px",
-                    transition: "background 0.15s",
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.08)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
-                >
-                  {emoji}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div style={{ position: "relative" }}>
-          <button
-            className={`toolbar-btn ${showMoreMenu ? "active" : ""}`}
-            onClick={() => {
-              setShowMoreMenu(!showMoreMenu);
-              setShowReactionsMenu(false);
-            }}
-          >
-            <MoreHorizontal />
-            <span>More</span>
-          </button>
-          {showMoreMenu && (
-            <div
-              className="more-menu"
-              style={{
-                position: "absolute",
-                bottom: "70px",
-                left: "50%",
-                transform: "translateX(-50%)",
-                background: "#2D2D30",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
-                borderRadius: "8px",
-                padding: "6px",
-                display: "flex",
-                flexDirection: "column",
-                gap: "4px",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-                zIndex: 100,
-                minWidth: "150px",
-              }}
-            >
-              <button
-                onClick={() => {
-                  handleCopyLink();
-                  setShowMoreMenu(false);
-                }}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "white",
-                  fontSize: "13px",
-                  fontWeight: "500",
-                  cursor: "pointer",
-                  padding: "8px 12px",
-                  borderRadius: "4px",
-                  textAlign: "left",
-                  width: "100%",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  transition: "background 0.15s",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.08)")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
-              >
-                <Copy style={{ width: 14, height: 14 }} />
-                Share Link
-              </button>
-
-              {isHost && (
-                <button
-                  onClick={() => {
-                    handleEndMeeting();
-                    setShowMoreMenu(false);
-                  }}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    color: "#E02020",
-                    fontSize: "13px",
-                    fontWeight: "500",
-                    cursor: "pointer",
-                    padding: "8px 12px",
-                    borderRadius: "4px",
-                    textAlign: "left",
-                    width: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    transition: "background 0.15s",
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(224,32,32,0.1)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
-                >
-                  <PhoneOff style={{ width: 14, height: 14 }} />
-                  End Meeting
-                </button>
-              )}
-            </div>
-          )}
-        </div>
-
-        <button className="toolbar-btn-end" onClick={handleEndMeeting}>
-          <PhoneOff style={{ width: 18, height: 18 }} />
-          <span>{isHost ? "End" : "Leave"}</span>
-        </button>
-      </div>
+      <MeetingToolbar
+        isMuted={isMuted}
+        toggleLocalMute={toggleLocalMute}
+        isVideoOff={isVideoOff}
+        setIsVideoOff={setIsVideoOff}
+        showParticipants={showParticipants}
+        setShowParticipants={setShowParticipants}
+        showChat={showChat}
+        setShowChat={setShowChat}
+        isHandRaised={isHandRaised}
+        handleToggleHand={handleToggleHand}
+        showReactionsMenu={showReactionsMenu}
+        setShowReactionsMenu={setShowReactionsMenu}
+        handleSendReaction={handleSendReaction}
+        showMoreMenu={showMoreMenu}
+        setShowMoreMenu={setShowMoreMenu}
+        handleCopyLink={handleCopyLink}
+        handleEndMeeting={handleEndMeeting}
+        isHost={isHost}
+      />
     </div>
   );
 }
