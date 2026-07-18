@@ -26,7 +26,17 @@ export interface Participant {
   email: string | null;
   role: string;
   is_muted: boolean;
+  raised_hand: boolean;
+  reaction: string | null;
   joined_at: string | null;
+}
+
+export interface Message {
+  id: number;
+  meeting_id: number;
+  sender_name: string;
+  content: string;
+  created_at: string;
 }
 
 export interface DashboardData {

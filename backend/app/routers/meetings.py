@@ -22,6 +22,8 @@ from app.crud.participant import get_participants_by_meeting
 from app.crud.meeting import get_meeting_by_code
 
 from app.models.participant import Participant
+from app.models.message import Message
+from app.schemas.message import MessageResponse, MessageCreate
 
 router = APIRouter(
     prefix="/meetings",
@@ -163,3 +165,70 @@ def mute_all_participants(
         attendee.is_muted = True
     db.commit()
     return {"message": "All participants muted"}
+
+
+@router.patch("/participants/{participant_id}/raise-hand")
+def raise_hand(
+    participant_id: int,
+    raised: bool,
+    db: Session = Depends(get_db)
+):
+    """Raise or lower hand."""
+    target = db.query(Participant).filter(Participant.id == participant_id).first()
+    if not target:
+        raise HTTPException(status_code=404, detail="Participant not found")
+    target.raised_hand = raised
+    db.commit()
+    db.refresh(target)
+    return {"message": "Hand status updated", "raised_hand": target.raised_hand}
+
+
+@router.patch("/participants/{participant_id}/react")
+def react(
+    participant_id: int,
+    reaction: str = None,
+    db: Session = Depends(get_db)
+):
+    """Submit a reaction emoji."""
+    target = db.query(Participant).filter(Participant.id == participant_id).first()
+    if not target:
+        raise HTTPException(status_code=404, detail="Participant not found")
+    target.reaction = reaction
+    db.commit()
+    db.refresh(target)
+    return {"message": "Reaction updated", "reaction": target.reaction}
+
+
+@router.post("/{code}/messages", response_model=MessageResponse)
+def send_message(
+    code: str,
+    data: MessageCreate,
+    db: Session = Depends(get_db)
+):
+    """Send a chat message in the meeting."""
+    meeting = get_meeting_by_code(db, code)
+    if not meeting:
+        raise HTTPException(status_code=404, detail="Meeting not found")
+        
+    msg = Message(
+        meeting_id=meeting.id,
+        sender_name=data.sender_name,
+        content=data.content
+    )
+    db.add(msg)
+    db.commit()
+    db.refresh(msg)
+    return msg
+
+
+@router.get("/{code}/messages", response_model=list[MessageResponse])
+def get_messages(
+    code: str,
+    db: Session = Depends(get_db)
+):
+    """Retrieve all chat messages in a meeting."""
+    meeting = get_meeting_by_code(db, code)
+    if not meeting:
+        raise HTTPException(status_code=404, detail="Meeting not found")
+        
+    return db.query(Message).filter(Message.meeting_id == meeting.id).order_by(Message.created_at.asc()).all()

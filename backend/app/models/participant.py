@@ -29,6 +29,10 @@ class Participant(Base):
 
     is_muted = Column(Boolean, default=False)
 
+    raised_hand = Column(Boolean, default=False)
+
+    reaction = Column(String, nullable=True)
+
     joined_at = Column(DateTime(timezone=True))
 
     left_at = Column(DateTime(timezone=True))

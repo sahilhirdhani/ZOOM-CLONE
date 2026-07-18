@@ -19,14 +19,19 @@ import {
   Check,
 } from "lucide-react";
 import ParticipantsPanel from "@/components/ParticipantsPanel";
+import ChatPanel from "@/components/ChatPanel";
 import {
   getMeetingDetail,
   endMeeting,
   removeParticipant,
   muteParticipant,
   muteAllParticipants,
+  raiseHand,
+  sendReaction,
+  sendMessage,
+  getMessages,
 } from "@/lib/api";
-import type { Meeting, Participant } from "@/lib/types";
+import type { Meeting, Participant, Message } from "@/lib/types";
 import "./meeting.css";
 
 const avatarColors = [
@@ -103,6 +108,10 @@ export default function MeetingRoomPage({
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
   const [showParticipants, setShowParticipants] = useState(false);
+  const [showChat, setShowChat] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isHandRaised, setIsHandRaised] = useState(false);
+  const [showReactionsMenu, setShowReactionsMenu] = useState(false);
   const [copied, setCopied] = useState(false);
 
   // Muted participants tracking
@@ -160,6 +169,12 @@ export default function MeetingRoomPage({
       setMeeting(data.meeting);
       setParticipants(data.participants);
       setMeetingLink(data.meeting_link);
+      try {
+        const msgs = await getMessages(code);
+        setMessages(msgs);
+      } catch (err) {
+        console.error("Failed to fetch messages:", err);
+      }
     } catch {
       setError("Meeting not found");
     } finally {
@@ -180,6 +195,7 @@ export default function MeetingRoomPage({
       const localPart = participants.find((p) => p.id === localParticipantId);
       if (localPart) {
         setIsMuted(localPart.is_muted);
+        setIsHandRaised(localPart.raised_hand);
       }
     }
   }, [participants, localParticipantId]);
@@ -228,6 +244,42 @@ export default function MeetingRoomPage({
     navigator.clipboard.writeText(meetingLink);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleToggleHand = async () => {
+    if (!localParticipantId) return;
+    const nextState = !isHandRaised;
+    setIsHandRaised(nextState);
+    try {
+      await raiseHand(localParticipantId, nextState);
+    } catch (err) {
+      console.error("Failed to toggle hand raise:", err);
+    }
+  };
+
+  const handleSendReaction = async (emoji: string) => {
+    if (!localParticipantId) return;
+    try {
+      await sendReaction(localParticipantId, emoji);
+      setShowReactionsMenu(false);
+      setTimeout(async () => {
+        try {
+          await sendReaction(localParticipantId, null);
+        } catch {}
+      }, 3000);
+    } catch (err) {
+      console.error("Failed to send reaction:", err);
+    }
+  };
+
+  const handleSendChatMessage = async (content: string) => {
+    if (!localParticipant) return;
+    try {
+      const newMsg = await sendMessage(code, localParticipant.display_name, content);
+      setMessages((prev) => [...prev, newMsg]);
+    } catch (err) {
+      console.error("Failed to send chat message:", err);
+    }
   };
 
   if (loading) {
@@ -345,7 +397,50 @@ export default function MeetingRoomPage({
             <div
               key={p.id}
               className={`participant-tile ${p.id === localParticipantId ? "speaking" : ""}`}
+              style={{ position: "relative" }}
             >
+              {p.reaction && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 12,
+                    right: 12,
+                    background: "rgba(0,0,0,0.6)",
+                    borderRadius: "50%",
+                    width: 36,
+                    height: 36,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 20,
+                    zIndex: 10,
+                  }}
+                >
+                  {p.reaction}
+                </div>
+              )}
+              {p.raised_hand && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 12,
+                    left: 12,
+                    background: "#F5A623",
+                    color: "white",
+                    borderRadius: "4px",
+                    padding: "2px 6px",
+                    fontSize: 11,
+                    fontWeight: "bold",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 4,
+                    zIndex: 10,
+                  }}
+                  title="Hand Raised"
+                >
+                  🖐️ Raised
+                </div>
+              )}
               <div
                 className="participant-tile-avatar"
                 style={{ background: getAvatarColor(p.display_name) }}
@@ -375,6 +470,14 @@ export default function MeetingRoomPage({
           onMuteToggle={isHost ? handleMuteToggle : undefined}
           onMuteAll={isHost ? handleMuteAll : undefined}
         />
+
+        {/* Chat Panel */}
+        <ChatPanel
+          isOpen={showChat}
+          onClose={() => setShowChat(false)}
+          messages={messages}
+          onSendMessage={handleSendChatMessage}
+        />
       </div>
 
       {/* Toolbar */}
@@ -402,26 +505,83 @@ export default function MeetingRoomPage({
 
         <button
           className={`toolbar-btn ${showParticipants ? "active" : ""}`}
-          onClick={() => setShowParticipants(!showParticipants)}
+          onClick={() => {
+            setShowParticipants(!showParticipants);
+            setShowChat(false);
+          }}
         >
           <Users />
           <span>Participants</span>
         </button>
 
-        <button className="toolbar-btn">
+        <button
+          className={`toolbar-btn ${showChat ? "active" : ""}`}
+          onClick={() => {
+            setShowChat(!showChat);
+            setShowParticipants(false);
+          }}
+        >
           <MessageSquare />
           <span>Chat</span>
         </button>
 
-        <button className="toolbar-btn">
+        <button
+          className={`toolbar-btn ${isHandRaised ? "active" : ""}`}
+          onClick={handleToggleHand}
+          style={isHandRaised ? { color: "#F5A623" } : {}}
+        >
           <Hand />
-          <span>Raise Hand</span>
+          <span>{isHandRaised ? "Lower Hand" : "Raise Hand"}</span>
         </button>
 
-        <button className="toolbar-btn">
-          <Smile />
-          <span>Reactions</span>
-        </button>
+        <div style={{ position: "relative" }}>
+          <button
+            className={`toolbar-btn ${showReactionsMenu ? "active" : ""}`}
+            onClick={() => setShowReactionsMenu(!showReactionsMenu)}
+          >
+            <Smile />
+            <span>Reactions</span>
+          </button>
+          {showReactionsMenu && (
+            <div
+              className="reactions-menu"
+              style={{
+                position: "absolute",
+                bottom: "70px",
+                left: "50%",
+                transform: "translateX(-50%)",
+                background: "#2D2D30",
+                border: "1px solid rgba(255, 255, 255, 0.08)",
+                borderRadius: "8px",
+                padding: "8px",
+                display: "flex",
+                gap: "8px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+                zIndex: 100,
+              }}
+            >
+              {["👏", "👍", "❤️", "😂", "😮", "🎉"].map((emoji) => (
+                <button
+                  key={emoji}
+                  onClick={() => handleSendReaction(emoji)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    fontSize: "20px",
+                    cursor: "pointer",
+                    padding: "4px",
+                    borderRadius: "4px",
+                    transition: "background 0.15s",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.08)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
 
         <button className="toolbar-btn">
           <MoreHorizontal />

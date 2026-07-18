@@ -8,6 +8,7 @@ import type {
   MeetingDetail,
   Meeting,
   Participant,
+  Message,
 } from "./types";
 
 const api = axios.create({
@@ -75,6 +76,30 @@ export async function muteAllParticipants(code: string, requesterId?: number): P
     ? `/meetings/${code}/mute-all?requester_id=${requesterId}`
     : `/meetings/${code}/mute-all`;
   await api.patch(url);
+}
+
+export async function raiseHand(participantId: number, raised: boolean): Promise<void> {
+  await api.patch(`/meetings/participants/${participantId}/raise-hand?raised=${raised}`);
+}
+
+export async function sendReaction(participantId: number, reaction: string | null): Promise<void> {
+  const url = reaction 
+    ? `/meetings/participants/${participantId}/react?reaction=${encodeURIComponent(reaction)}`
+    : `/meetings/participants/${participantId}/react`;
+  await api.patch(url);
+}
+
+export async function sendMessage(code: string, senderName: string, content: string): Promise<Message> {
+  const res = await api.post(`/meetings/${code}/messages`, {
+    sender_name: senderName,
+    content: content
+  });
+  return res.data;
+}
+
+export async function getMessages(code: string): Promise<Message[]> {
+  const res = await api.get(`/meetings/${code}/messages`);
+  return res.data;
 }
 
 export default api;
