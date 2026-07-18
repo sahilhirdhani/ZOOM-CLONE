@@ -12,10 +12,11 @@ def seed_database():
     db = SessionLocal()
 
     try:
-        # Idempotent seeding
-        if db.query(User).first():
-            print("Database already seeded.")
-            return
+        # Clean up existing data to force re-seeding with new requirements
+        db.query(Participant).delete()
+        db.query(Meeting).delete()
+        db.query(User).delete()
+        db.commit()
 
         user = User(
             name="Sahil Hirdhani",
@@ -30,6 +31,12 @@ def seed_database():
         db.flush()
 
         now = datetime.now()
+        
+        # Specific dates: July 20, July 21, July 23, and missed on July 18, 2026
+        date_20 = datetime(2026, 7, 20, 10, 30)
+        date_21 = datetime(2026, 7, 21, 14, 15)
+        date_23 = datetime(2026, 7, 23, 16, 0)
+        date_missed = datetime(2026, 7, 18, 9, 0)
 
         meetings_data = [
             {
@@ -37,7 +44,7 @@ def seed_database():
                 "description": "Deep dive into microservices architecture and scaling strategies",
                 "status": "SCHEDULED",
                 "visibility": "PRIVATE",
-                "scheduled_at": now + timedelta(hours=3),
+                "scheduled_at": date_20,
                 "duration": 60,
                 "participants": [
                     ("Alice Johnson", "alice@example.com"),
@@ -50,7 +57,7 @@ def seed_database():
                 "description": "Plan the next sprint for React component migration",
                 "status": "SCHEDULED",
                 "visibility": "PRIVATE",
-                "scheduled_at": now + timedelta(days=1, hours=2),
+                "scheduled_at": date_21,
                 "duration": 45,
                 "participants": [
                     ("David Lee", "david@example.com"),
@@ -63,7 +70,7 @@ def seed_database():
                 "description": "Final demo of the Zoom Clone project to stakeholders",
                 "status": "SCHEDULED",
                 "visibility": "PUBLIC",
-                "scheduled_at": now + timedelta(days=3),
+                "scheduled_at": date_23,
                 "duration": 90,
                 "participants": [
                     ("Noah Garcia", "noah@example.com"),
@@ -74,9 +81,9 @@ def seed_database():
             {
                 "title": "Team Standup",
                 "description": "Daily standup — blockers and progress updates",
-                "status": "SCHEDULED",
+                "status": "MISSED",
                 "visibility": "PRIVATE",
-                "scheduled_at": now + timedelta(hours=1),
+                "scheduled_at": date_missed,
                 "duration": 15,
                 "participants": [
                     ("Max Turner", "max@example.com"),

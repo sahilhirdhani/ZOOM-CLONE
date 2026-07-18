@@ -8,6 +8,7 @@ import {
   Calendar as CalendarIcon,
   LogIn,
   CalendarDays,
+  AlertCircle,
 } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import "./page.css";
@@ -215,6 +216,43 @@ export default function Home() {
             <div className="empty-state">
               <Video />
               <p>No recent meetings</p>
+            </div>
+          )}
+        </section>
+
+        {/* Missed Meetings */}
+        <section className="meetings-section">
+          <div className="meetings-section-header">
+            <h2>
+              <AlertCircle
+                style={{
+                  width: 18,
+                  height: 18,
+                  display: "inline",
+                  verticalAlign: "text-bottom",
+                  marginRight: 8,
+                  color: "var(--zoom-red)",
+                }}
+              />
+              Missed Meetings
+            </h2>
+            <span className="count">
+              {data?.missed_meetings?.length || 0} meetings
+            </span>
+          </div>
+
+          {data?.missed_meetings?.length ? (
+            data.missed_meetings.map((m) => (
+              <MeetingCard
+                key={m.id}
+                meeting={m}
+                onCopyLink={handleCopyLink}
+              />
+            ))
+          ) : (
+            <div className="empty-state">
+              <CalendarIcon style={{ color: "var(--zoom-red)", opacity: 0.3 }} />
+              <p>No missed meetings</p>
             </div>
           )}
         </section>

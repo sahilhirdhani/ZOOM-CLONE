@@ -71,6 +71,8 @@ export default function MeetingCard({
                 ? "Upcoming"
                 : meeting.status === "ACTIVE"
                 ? "In Progress"
+                : meeting.status === "MISSED"
+                ? "Missed"
                 : "Completed"}
             </span>
             <span className="meeting-card-code">{meeting.meeting_code}</span>

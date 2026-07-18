@@ -44,6 +44,7 @@ export interface DashboardData {
   user: User;
   upcoming_meetings: Meeting[];
   recent_meetings: Meeting[];
+  missed_meetings: Meeting[];
 }
 
 export interface InstantMeetingResponse {

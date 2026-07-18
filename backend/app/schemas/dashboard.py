@@ -8,3 +8,4 @@ class DashboardResponse(BaseModel):
     user: UserResponse
     upcoming_meetings: list[MeetingResponse]
     recent_meetings: list[MeetingResponse]
+    missed_meetings: list[MeetingResponse]

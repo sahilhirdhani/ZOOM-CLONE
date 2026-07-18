@@ -22,6 +22,16 @@ def get_recent_meetings(db: Session):
     )
 
 
+def get_missed_meetings(db: Session):
+    """Get all missed meetings ordered by most recent first."""
+    return (
+        db.query(Meeting)
+        .filter(Meeting.status == "MISSED")
+        .order_by(Meeting.scheduled_at.desc())
+        .all()
+    )
+
+
 def get_meeting_by_code(db: Session, code: str):
     """Look up a meeting by its meeting code."""
     return (

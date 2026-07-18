@@ -65,6 +65,16 @@
   --zoom-text-secondary: rgba(255, 255, 255, 0.7);
   --zoom-text-tertiary: rgba(255, 255, 255, 0.4);
   --zoom-text-inverse: #1A1A2E;
+
+  /* Status Colors Override (Premium Glow) */
+  --zoom-green: #34D399;
+  --zoom-green-light: rgba(52, 211, 153, 0.12);
+  --zoom-blue: #3B82F6;
+  --zoom-blue-light: rgba(59, 130, 246, 0.12);
+  --zoom-orange: #F59E0B;
+  --zoom-orange-light: rgba(245, 158, 11, 0.12);
+  --zoom-red: #EF4444;
+  --zoom-red-light: rgba(239, 68, 68, 0.12);
 }
 
 @theme inline {
@@ -116,7 +126,7 @@ body {
 .main-content {
   margin-left: var(--sidebar-width);
   margin-top: var(--topbar-height);
-  padding: 28px 32px;
+  padding: 28px 32px 64px;
   min-height: calc(100vh - var(--topbar-height));
 }
 
