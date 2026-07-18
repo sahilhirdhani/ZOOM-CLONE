@@ -10,6 +10,7 @@ import {
   CalendarDays,
 } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
+import "./page.css";
 import TopBar from "@/components/TopBar";
 import MeetingCard from "@/components/MeetingCard";
 import NewMeetingModal from "@/components/NewMeetingModal";

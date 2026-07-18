@@ -1,6 +1,7 @@
 "use client";
 
 import { Search, Bell, HelpCircle } from "lucide-react";
+import "./TopBar.css";
 
 interface TopBarProps {
   title?: string;

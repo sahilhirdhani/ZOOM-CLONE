@@ -15,6 +15,7 @@ import {
   Check,
   CheckCheck,
 } from "lucide-react";
+import "./chat.css";
 
 interface ChatMessage {
   id: number;

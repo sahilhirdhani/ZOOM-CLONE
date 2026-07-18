@@ -25,6 +25,7 @@ import {
   removeParticipant,
 } from "@/lib/api";
 import type { Meeting, Participant } from "@/lib/types";
+import "./meeting.css";
 
 const avatarColors = [
   "#0B5CFF",

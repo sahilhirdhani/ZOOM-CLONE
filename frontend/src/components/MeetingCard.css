@@ -1,0 +1,139 @@
+.meeting-card {
+  background: var(--zoom-white);
+  border: 1px solid var(--zoom-border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.15s ease;
+  cursor: default;
+}
+
+.meeting-card:hover {
+  border-color: var(--zoom-blue);
+  box-shadow: var(--zoom-shadow-sm);
+}
+
+.meeting-card-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+
+.meeting-card-time-block {
+  min-width: 72px;
+  text-align: center;
+}
+
+.meeting-card-time {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--zoom-text-primary);
+}
+
+.meeting-card-date {
+  font-size: 11px;
+  color: var(--zoom-text-tertiary);
+  margin-top: 2px;
+}
+
+.meeting-card-divider {
+  width: 1px;
+  height: 36px;
+  background: var(--zoom-border);
+}
+
+.meeting-card-info {
+  flex: 1;
+}
+
+.meeting-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--zoom-text-primary);
+  margin-bottom: 2px;
+}
+
+.meeting-card-desc {
+  font-size: 12px;
+  color: var(--zoom-text-secondary);
+}
+
+.meeting-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.meeting-card-badge {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.meeting-card-badge.scheduled {
+  background: var(--zoom-blue-light);
+  color: var(--zoom-blue);
+}
+
+.meeting-card-badge.completed {
+  background: var(--zoom-green-light);
+  color: var(--zoom-green);
+}
+
+.meeting-card-badge.active {
+  background: var(--zoom-orange-light);
+  color: var(--zoom-orange);
+}
+
+.meeting-card-code {
+  font-size: 11px;
+  color: var(--zoom-text-tertiary);
+  font-family: 'SF Mono', 'Menlo', monospace;
+}
+
+.meeting-card-duration {
+  font-size: 11px;
+  color: var(--zoom-text-tertiary);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.meeting-card-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.meeting-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.meeting-card:hover .meeting-card-actions {
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .meeting-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .meeting-card-actions {
+    opacity: 1;
+  }
+}

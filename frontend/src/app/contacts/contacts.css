@@ -1,0 +1,224 @@
+/* ============ CONTACTS PAGE ============ */
+.contacts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.contacts-header-left {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.contacts-header-left h1 {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.contacts-count {
+  color: var(--zoom-text-secondary);
+  font-size: 14px;
+}
+
+.contacts-filters {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  background: var(--zoom-white);
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--zoom-border);
+}
+
+.contacts-search {
+  position: relative;
+  width: 360px;
+}
+
+.contacts-search input {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px 0 36px;
+  border-radius: 8px;
+  border: 1px solid var(--zoom-border);
+  background: var(--zoom-bg);
+  outline: none;
+  font-size: 14px;
+}
+
+.contacts-search svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--zoom-text-tertiary);
+}
+
+.contacts-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.contacts-filter-tabs {
+  display: flex;
+  background: var(--zoom-bg);
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.contacts-filter-tab {
+  background: none;
+  border: none;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--zoom-text-secondary);
+  cursor: pointer;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.contacts-filter-tab.active {
+  background: var(--zoom-white);
+  color: var(--zoom-text-primary);
+  box-shadow: var(--zoom-shadow-sm);
+}
+
+.contacts-dept-select {
+  width: 180px;
+  height: 36px;
+}
+
+.contacts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.contact-card {
+  background: var(--zoom-white);
+  border: 1px solid var(--zoom-border);
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-card:hover {
+  border-color: var(--zoom-blue);
+  box-shadow: var(--zoom-shadow-sm);
+  transform: translateY(-2px);
+}
+
+.contact-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.contact-card-avatar {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--zoom-blue);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 20px;
+}
+
+.contact-status-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 14px;
+  height: 14px;
+  border: 2px solid white;
+  border-radius: 50%;
+}
+
+.contact-card-body {
+  flex: 1;
+}
+
+.contact-card-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--zoom-text-primary);
+  margin-bottom: 4px;
+}
+
+.contact-card-role {
+  font-size: 13px;
+  color: var(--zoom-text-secondary);
+  margin-bottom: 4px;
+}
+
+.contact-card-dept {
+  display: inline-block;
+  font-size: 11px;
+  background: var(--zoom-bg);
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: var(--zoom-text-tertiary);
+  margin-bottom: 12px;
+}
+
+.contact-card-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--zoom-text-secondary);
+  margin-bottom: 20px;
+}
+
+.contact-status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.contact-card-actions {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid var(--zoom-border-light);
+  padding-top: 16px;
+}
+
+.contact-action-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: var(--zoom-bg);
+  color: var(--zoom-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.contact-action-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.contact-action-btn:hover {
+  background: var(--zoom-blue-light);
+  color: var(--zoom-blue);
+}
+
+

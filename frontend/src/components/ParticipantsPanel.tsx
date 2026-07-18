@@ -2,6 +2,7 @@
 
 import { X, MicOff, UserMinus } from "lucide-react";
 import type { Participant } from "@/lib/types";
+import "./ParticipantsPanel.css";
 
 interface ParticipantsPanelProps {
   participants: Participant[];

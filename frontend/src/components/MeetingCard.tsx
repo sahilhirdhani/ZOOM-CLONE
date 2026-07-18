@@ -2,6 +2,7 @@
 
 import { Clock, Copy, Play, ExternalLink } from "lucide-react";
 import type { Meeting } from "@/lib/types";
+import "./MeetingCard.css";
 
 interface MeetingCardProps {
   meeting: Meeting;

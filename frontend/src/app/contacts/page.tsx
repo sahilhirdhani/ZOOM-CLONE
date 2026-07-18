@@ -13,6 +13,7 @@ import {
   Star,
   MessageSquare,
 } from "lucide-react";
+import "./contacts.css";
 
 interface Contact {
   id: number;

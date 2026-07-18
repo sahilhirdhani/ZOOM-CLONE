@@ -18,6 +18,7 @@ import NewMeetingModal from "@/components/NewMeetingModal";
 import ScheduleModal from "@/components/ScheduleModal";
 import { getDashboard } from "@/lib/api";
 import type { DashboardData, Meeting } from "@/lib/types";
+import "./meetings.css";
 
 type TabFilter = "upcoming" | "past" | "all";
 

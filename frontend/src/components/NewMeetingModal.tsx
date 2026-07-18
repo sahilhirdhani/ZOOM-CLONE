@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { X, Copy, Check, Video } from "lucide-react";
 import { createInstantMeeting } from "@/lib/api";
+import "./NewMeetingModal.css";
 
 interface NewMeetingModalProps {
   isOpen: boolean;

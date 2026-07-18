@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { getDashboard } from "@/lib/api";
 import type { User as UserType } from "@/lib/types";
+import "./settings.css";
 
 interface SettingToggle {
   id: string;

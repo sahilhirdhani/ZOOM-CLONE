@@ -1,0 +1,101 @@
+/* ============ MEETINGS PAGE ============ */
+.meetings-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 32px;
+}
+
+.meetings-page-header-left h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.meetings-page-header-right {
+  display: flex;
+  gap: 12px;
+}
+
+.meetings-page-filters {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--zoom-border);
+  padding-bottom: 16px;
+}
+
+.meetings-page-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.meetings-page-tab {
+  background: none;
+  border: none;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--zoom-text-secondary);
+  cursor: pointer;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.meetings-page-tab:hover {
+  background: var(--zoom-bg);
+}
+
+.meetings-page-tab.active {
+  background: var(--zoom-blue-light);
+  color: var(--zoom-blue);
+}
+
+.meetings-page-tab-count {
+  background: var(--zoom-border);
+  color: var(--zoom-text-primary);
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.meetings-page-tab.active .meetings-page-tab-count {
+  background: var(--zoom-blue);
+  color: white;
+}
+
+.meetings-page-search {
+  position: relative;
+  width: 300px;
+}
+
+.meetings-page-search input {
+  width: 100%;
+  height: 38px;
+  padding: 0 12px 0 36px;
+  border-radius: 8px;
+  border: 1px solid var(--zoom-border);
+  background: var(--zoom-bg);
+  outline: none;
+  font-size: 14px;
+}
+
+.meetings-page-search svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--zoom-text-tertiary);
+}
+
+.meetings-page-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+

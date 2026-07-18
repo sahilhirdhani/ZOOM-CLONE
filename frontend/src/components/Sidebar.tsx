@@ -11,6 +11,7 @@ import {
   Calendar,
   Settings,
 } from "lucide-react";
+import "./Sidebar.css";
 
 const navItems = [
   { href: "/", icon: Home, label: "Home" },

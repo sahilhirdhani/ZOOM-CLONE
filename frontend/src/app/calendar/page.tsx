@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { getDashboard } from "@/lib/api";
 import type { Meeting } from "@/lib/types";
+import "./calendar.css";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTHS = [

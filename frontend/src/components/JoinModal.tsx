@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { X, LogIn } from "lucide-react";
 import { joinMeeting } from "@/lib/api";
+import "./JoinModal.css";
 
 interface JoinModalProps {
   isOpen: boolean;

@@ -14,6 +14,7 @@ import {
   Search,
   Star,
 } from "lucide-react";
+import "./phone.css";
 
 interface CallRecord {
   id: number;

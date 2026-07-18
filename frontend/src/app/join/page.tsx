@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Video, LogIn } from "lucide-react";
 import { joinMeeting } from "@/lib/api";
+import "./join.css";
 
 export default function JoinPage() {
   const router = useRouter();

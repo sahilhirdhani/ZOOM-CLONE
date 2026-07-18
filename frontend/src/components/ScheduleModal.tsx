@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { X, CalendarPlus, Check, Copy } from "lucide-react";
 import { scheduleMeeting } from "@/lib/api";
+import "./ScheduleModal.css";
 
 interface ScheduleModalProps {
   isOpen: boolean;

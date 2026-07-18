@@ -1,0 +1,98 @@
+/* ============ JOIN PAGE ============ */
+.join-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--zoom-bg);
+}
+
+.join-container {
+  width: 100%;
+  max-width: 420px;
+  background: var(--zoom-white);
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: var(--zoom-shadow-lg);
+  text-align: center;
+}
+
+.join-logo {
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.join-logo svg {
+  width: 32px;
+  height: 32px;
+  color: var(--zoom-blue);
+}
+
+.join-logo span {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--zoom-text-primary);
+}
+
+.join-container h1 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--zoom-text-primary);
+}
+
+.join-container p {
+  font-size: 14px;
+  color: var(--zoom-text-secondary);
+  margin-bottom: 28px;
+}
+
+.join-form {
+  text-align: left;
+}
+
+.join-form .form-input {
+  height: 44px;
+  font-size: 15px;
+}
+
+.join-form .btn {
+  width: 100%;
+  height: 44px;
+  font-size: 15px;
+  margin-top: 8px;
+}
+
+.join-error {
+  color: var(--zoom-red);
+  font-size: 13px;
+  margin-top: 12px;
+  text-align: center;
+}
+
+.join-back {
+  margin-top: 20px;
+  font-size: 13px;
+  color: var(--zoom-text-secondary);
+}
+
+.join-back a {
+  color: var(--zoom-blue);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.join-back a:hover {
+  text-decoration: underline;
+}
+
+
+@media (max-width: 480px) {
+  .join-container {
+    margin: 16px;
+    padding: 28px 20px;
+  }
+}
