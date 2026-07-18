@@ -12,7 +12,7 @@ import type {
 } from "./types";
 
 const api = axios.create({
-  baseURL: "http://localhost:8000",
+  baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
   headers: {
     "Content-Type": "application/json",
   },
@@ -83,7 +83,7 @@ export async function raiseHand(participantId: number, raised: boolean): Promise
 }
 
 export async function sendReaction(participantId: number, reaction: string | null): Promise<void> {
-  const url = reaction 
+  const url = reaction
     ? `/meetings/participants/${participantId}/react?reaction=${encodeURIComponent(reaction)}`
     : `/meetings/participants/${participantId}/react`;
   await api.patch(url);

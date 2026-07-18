@@ -51,7 +51,8 @@ export default function MeetingsPage() {
   };
 
   const handleCopyLink = (meeting: Meeting) => {
-    const link = `http://localhost:3000/meeting/${meeting.meeting_code}`;
+    const frontendUrl = process.env.NEXT_PUBLIC_FRONTEND_URL;
+    const link = `${frontendUrl}/meeting/${meeting.meeting_code}`;
     navigator.clipboard.writeText(link);
   };
 
@@ -162,10 +163,10 @@ export default function MeetingsPage() {
                 {searchQuery
                   ? "No meetings match your search"
                   : activeTab === "upcoming"
-                  ? "No upcoming meetings scheduled"
-                  : activeTab === "past"
-                  ? "No past meetings found"
-                  : "No meetings found"}
+                    ? "No upcoming meetings scheduled"
+                    : activeTab === "past"
+                      ? "No past meetings found"
+                      : "No meetings found"}
               </p>
             </div>
           )}

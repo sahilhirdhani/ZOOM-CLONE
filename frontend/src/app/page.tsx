@@ -53,7 +53,8 @@ export default function Home() {
   };
 
   const handleCopyLink = (meeting: Meeting) => {
-    const link = `http://localhost:3000/meeting/${meeting.meeting_code}`;
+    const frontendUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000";
+    const link = `${frontendUrl}/meeting/${meeting.meeting_code}`;
     navigator.clipboard.writeText(link);
   };
 

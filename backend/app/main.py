@@ -18,10 +18,24 @@ app = FastAPI(
     version="1.0.0",
 )
 
+import os
+from pathlib import Path
+
+# Load .env file
+env_path = Path(__file__).parent / ".env"
+if env_path.exists():
+    with open(env_path) as f:
+        for line in f:
+            if "=" in line:
+                key, val = line.strip().split("=", 1)
+                os.environ[key.strip()] = val.strip().strip('"').strip("'")
+
+FRONTEND_URL = os.getenv("FRONTEND_URL")
+
 # CORS — allow frontend origin
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[FRONTEND_URL],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
