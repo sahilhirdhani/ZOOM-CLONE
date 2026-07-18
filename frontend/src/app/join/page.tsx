@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Video, LogIn } from "lucide-react";
@@ -14,6 +14,16 @@ export default function JoinPage() {
   const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const searchParams = new URLSearchParams(window.location.search);
+      const code = searchParams.get("code");
+      if (code) {
+        setMeetingCode(code);
+      }
+    }
+  }, []);
 
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();

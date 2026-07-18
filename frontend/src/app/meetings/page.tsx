@@ -51,8 +51,8 @@ export default function MeetingsPage() {
   };
 
   const handleCopyLink = (meeting: Meeting) => {
-    const frontendUrl = process.env.NEXT_PUBLIC_FRONTEND_URL;
-    const link = `${frontendUrl}/meeting/${meeting.meeting_code}`;
+    const frontendUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || window.location.origin;
+    const link = `${frontendUrl}/join?code=${meeting.meeting_code}`;
     navigator.clipboard.writeText(link);
   };
 

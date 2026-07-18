@@ -15,4 +15,4 @@ import os
 def generate_meeting_link(code: str) -> str:
     """Generate a shareable meeting link."""
     frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
-    return f"{frontend_url}/meeting/{code}"
+    return f"{frontend_url}/join?code={code}"

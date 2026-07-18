@@ -45,7 +45,7 @@
   --zoom-shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.16);
 
   /* Sizing */
-  --sidebar-width: 64px;
+  --sidebar-width: 240px;
   --topbar-height: 52px;
 }
 
@@ -236,6 +236,46 @@ body {
 .copy-link-btn svg {
   width: 14px;
   height: 14px;
+}
+
+/* ============ FORMS ============ */
+.form-group {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: left;
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--zoom-text-primary);
+  margin-bottom: 6px;
+}
+
+.form-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--zoom-border);
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--zoom-text-primary);
+  background: var(--zoom-white);
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.form-input:focus {
+  border-color: var(--zoom-blue);
+  box-shadow: 0 0 0 3px rgba(11, 92, 255, 0.1);
+}
+
+.form-input::placeholder {
+  color: var(--zoom-text-tertiary);
 }
 
 /* ============ EMPTY STATE ============ */

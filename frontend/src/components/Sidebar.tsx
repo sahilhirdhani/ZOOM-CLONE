@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
@@ -28,6 +29,25 @@ interface SidebarProps {
 
 export default function Sidebar({ avatar }: SidebarProps) {
   const pathname = usePathname();
+  const [userAvatar, setUserAvatar] = useState(avatar || "");
+
+  useEffect(() => {
+    if (avatar) {
+      setUserAvatar(avatar);
+      return;
+    }
+    const storedUser = localStorage.getItem("zoom_user");
+    if (storedUser) {
+      try {
+        const parsed = JSON.parse(storedUser);
+        if (parsed.avatar) {
+          setUserAvatar(parsed.avatar);
+        }
+      } catch (err) {
+        console.error("Failed to parse zoom_user", err);
+      }
+    }
+  }, [avatar]);
 
   return (
     <aside className="sidebar">
@@ -44,6 +64,7 @@ export default function Sidebar({ avatar }: SidebarProps) {
             fill="white"
           />
         </svg>
+        <span className="logo-text">Zoom</span>
       </div>
 
       {/* Navigation */}
@@ -66,15 +87,17 @@ export default function Sidebar({ avatar }: SidebarProps) {
 
       {/* Bottom */}
       <div className="sidebar-bottom">
-        <Link href="/settings" className={`sidebar-item ${pathname === "/settings" ? "active" : ""}`}>
-          <Settings />
-          <span>Settings</span>
-        </Link>
-        {avatar && (
-          <div className="sidebar-avatar">
-            <img src={avatar} alt="Profile" />
-          </div>
-        )}
+        <div className="sidebar-bottom-row">
+          <Link href="/settings" className={`sidebar-item ${pathname === "/settings" ? "active" : ""}`}>
+            <Settings />
+            <span>Settings</span>
+          </Link>
+          {userAvatar && (
+            <div className="sidebar-avatar">
+              <img src={userAvatar} alt="Profile" />
+            </div>
+          )}
+        </div>
       </div>
     </aside>
   );
