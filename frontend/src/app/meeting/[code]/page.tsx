@@ -78,6 +78,7 @@ export default function MeetingRoomPage({
   const [localParticipantId, setLocalParticipantId] = useState<number | null>(null);
 
   const [isJoining, setIsJoining] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false);
 
   useEffect(() => {
     if (participants.length === 0) return;
@@ -130,6 +131,18 @@ export default function MeetingRoomPage({
   // Toolbar state
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
+
+  useEffect(() => {
+    if (isLeaving) return;
+    if (localParticipantId && participants.length > 0) {
+      const stillInMeeting = participants.some((p) => p.id === localParticipantId);
+      if (!stillInMeeting) {
+        sessionStorage.removeItem(`meeting_participant_${code}`);
+        alert("You have been removed from the meeting.");
+        router.push("/");
+      }
+    }
+  }, [participants, localParticipantId, router, code, isLeaving]);
   const [showParticipants, setShowParticipants] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -243,6 +256,8 @@ export default function MeetingRoomPage({
   };
 
   const handleEndMeeting = async () => {
+    setIsLeaving(true);
+    sessionStorage.removeItem(`meeting_participant_${code}`);
     try {
       if (isHost) {
         await endMeeting(code);
