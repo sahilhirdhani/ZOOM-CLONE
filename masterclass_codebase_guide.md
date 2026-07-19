@@ -35,9 +35,14 @@ Before looking at the files, let's understand the core technologies powering our
 ### 1. Python & FastAPI (Backend)
 * **FastAPI**: A modern, high-performance web framework for building APIs with Python. It's built on top of Starlette (for web routing) and Pydantic (for data validation).
 * **SQLAlchemy**: An Object-Relational Mapper (ORM). It allows us to write Python classes (Models) that map directly to database tables. We can write, read, and delete database records using standard Python code instead of raw SQL queries.
-* **SQLite**: A lightweight, file-based database engine. It does not require a separate server process, making it perfect for development and small-scale apps. The database is saved as a local file named `zoom_clone.db`.
+* **SQLite**: A lightweight, file-based database engine. It does not require a separate server process, making it perfect for development and small-scale apps. The database is saved as a local file named `zoom_clone_v2.db`.
 
-### 2. Next.js, React & TypeScript (Frontend)
+### 2. LiveKit (WebRTC Video/Audio)
+* **LiveKit Server**: An open-source WebRTC SFU (Selective Forwarding Unit) that handles routing video and audio streams between participants with extremely low latency.
+* **@livekit/components-react**: A frontend library that provides React hooks and UI components (like `LiveKitRoom`, `VideoTrack`, and `useLocalParticipant`) to effortlessly connect the frontend to the LiveKit Server.
+* **LiveKit Python SDK**: Used in the backend to generate secure JWT Access Tokens, granting frontend clients permission to publish and subscribe to streams in a specific meeting room.
+
+### 3. Next.js, React & TypeScript (Frontend)
 * **Next.js (App Router)**: A React framework for building full-stack web applications. It uses a folder-based routing structure (e.g., `app/calendar/page.tsx` becomes `http://localhost:3000/calendar`).
 * **TypeScript**: A typed superset of JavaScript. It adds static types to our code, helping us catch bugs (like passing a number where a string is expected) before our code runs.
 * **Axios**: A popular HTTP client library. We use it to send requests (GET, POST, PATCH, DELETE) from the frontend browser to our backend FastAPI server.
@@ -200,6 +205,7 @@ Routers define the actual HTTP endpoints.
 This file maps incoming HTTP requests to our services:
 * **`@router.post("/instant")`**: Calls `create_instant_meeting` service.
 * **`@router.post("/join")`**: Takes a JSON body containing `meeting_code` and `display_name`, calls `join_meeting`, and raises a `404` error if the meeting code does not exist.
+* **`@router.get("/{code}/livekit-token")`**: Uses the `livekit.api.AccessToken` to generate a secure JWT. This token is required by the frontend's `<LiveKitRoom>` component to authenticate with the LiveKit server and stream audio/video for the specific participant.
 * **`@router.patch("/{code}/end")`**: Ends the meeting.
 * **`@router.patch("/participants/{participant_id}/mute")`**: Allows a host or the participant themselves to mute/unmute.
 * **`@router.post("/{code}/messages")`**: Posts a chat message to the room's message log.
@@ -282,16 +288,16 @@ The landing dashboard that users see upon logging in.
 ### `frontend/src/app/meeting/[code]/page.tsx` (Dynamic Meeting Room)
 This is the dynamic meeting interface. Next.js maps URLs like `http://localhost:3000/meeting/abc-defg-hij` to this page, passing `"abc-defg-hij"` in the page parameters as `code`.
 
-This view simulates a full-featured video conference layout:
-1. **State Hooks**:
-   * `participants`: Tracks current users in the room.
+This view acts as a full-featured real-time video conference layout powered by **LiveKit**:
+1. **LiveKit Integration**:
+   * Wraps the entire layout in `<LiveKitRoom>`, passing the `token` fetched from the backend and the `serverUrl`.
+   * Automatically handles connecting to the WebRTC server, acquiring camera/microphone permissions, and routing media tracks.
+2. **State Polling Hooks**:
+   * `participants`: Tracks current users in the room. Polling the backend every few seconds ensures we capture database-level state changes like host mutes or hand raises.
    * `messages`: Message list for chat.
-   * `myParticipantId`: Tracks the current user's database participant reference.
-2. **Polling Mechanisms**:
-   * Uses React `useEffect` timers to poll `/meetings/{code}` and `/meetings/{code}/messages` every few seconds. This keeps participant lists, mute states, reactions, raised hands, and chat messages updated across all client screens without needing WebSockets.
 3. **Sub-components**:
-   * **`VideoGrid.tsx`**: Renders camera blocks for all participants.
-   * **`MeetingToolbar.tsx`**: Contains buttons to mute/unmute audio, toggle video feed, raise hand, select emoji reactions, or end/leave the call.
+   * **`VideoGrid.tsx`**: Renders `<ParticipantTile>` and video tracks for all active LiveKit participants, dynamically adjusting grid layouts.
+   * **`MeetingToolbar.tsx`**: Contains buttons to mute/unmute audio, toggle video feed, raise hand, select emoji reactions, or end/leave the call. Uses LiveKit's `useLocalParticipant()` hook to actually disable the hardware camera/mic.
    * **`ParticipantsPanel.tsx`**: Sidebar listing all attendees. If the user is the host, they are shown buttons to kick or mute participants.
    * **`ChatPanel.tsx`**: Displays the live message stream and text inputs.
 
@@ -323,10 +329,15 @@ sequenceDiagram
     Frontend->>User: Route redirect to "/meeting/[code]"
 ```
 
-When the page redirects to `/meeting/[code]`, the new page starts polling the backend:
-* Every 2 seconds, it calls `GET /meetings/{code}`.
-* It updates the React states for `participants` and `messages`.
-* The UI automatically updates to reflect new participants, muted mics, raised hands, and chat messages.
+When the page redirects to `/meeting/[code]`, two things happen simultaneously:
+1. **LiveKit Connection**:
+   * The frontend requests a token (`GET /meetings/{code}/livekit-token`).
+   * The backend generates a secure JWT using the LiveKit API Key.
+   * The frontend mounts `<LiveKitRoom>` with the token, instantly establishing a WebRTC video/audio connection to the LiveKit server.
+2. **State Polling**:
+   * Every 2 seconds, the frontend polls `GET /meetings/{code}`.
+   * It updates the React states for `participants` and `messages`.
+   * The UI automatically updates to reflect new participants, muted mics (enforced remotely by host), raised hands, and chat messages.
 
 ---
 *Now you are ready to explore the code! Click any of the file links in the guide to see the implementation details.*

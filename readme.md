@@ -6,6 +6,7 @@ A full-stack **Zoom-like video conferencing web application** built with **Next.
 ![Tech Stack](https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi)
 ![Tech Stack](https://img.shields.io/badge/Database-SQLite-003B57?logo=sqlite)
 ![Tech Stack](https://img.shields.io/badge/Styling-Tailwind%20CSS-06B6D4?logo=tailwindcss)
+![Tech Stack](https://img.shields.io/badge/WebRTC-LiveKit-E91E63?logo=webrtc)
 
 ---
 
@@ -17,7 +18,7 @@ A full-stack **Zoom-like video conferencing web application** built with **Next.
 - **🎬 Instant Meeting** — Create meetings instantly with auto-generated Meeting IDs and shareable invite links
 - **🔗 Join Meeting** — Join via Meeting ID or direct invite link with display name entry
 - **📅 Schedule Meetings** — Full scheduling with title, description, date/time picker, and duration selector
-- **👥 Meeting Room** — Dark-themed meeting room with participant grid, real-time timer, and full toolbar
+- **👥 Meeting Room** — Dark-themed meeting room with real-time video, audio, and screen sharing powered by LiveKit
 - **🎛️ Host Controls** — Mute all, remove participants, end meeting
 
 ### Bonus Features
@@ -37,6 +38,7 @@ A full-stack **Zoom-like video conferencing web application** built with **Next.
 | Frontend   | Next.js 16 (React 19) |
 | Backend    | Python + FastAPI     |
 | Database   | SQLite               |
+| WebRTC     | LiveKit Server & React Components |
 | Styling    | Tailwind CSS v4 + Custom CSS |
 | HTTP Client| Axios                |
 | Icons      | Lucide React         |
@@ -141,6 +143,7 @@ The frontend starts at **http://localhost:3000**
 | `POST` | `/meetings/schedule` | Schedule a future meeting |
 | `POST` | `/meetings/join` | Join a meeting by code |
 | `GET` | `/meetings/{code}` | Get meeting details with participants |
+| `GET` | `/meetings/{code}/livekit-token` | Generate a LiveKit access token for real-time WebRTC |
 | `PATCH` | `/meetings/{code}/end` | End an active meeting |
 | `GET` | `/meetings/{code}/participants` | List meeting participants |
 | `DELETE` | `/meetings/participants/{id}` | Remove a participant |
@@ -219,10 +222,9 @@ ZOOM_CLONE/
 
 ## ⚠️ Assumptions
 
-1. **Single User**: The app assumes one default user (seeded on startup). No login/signup flow.
-2. **Simulated Video**: Video/audio is simulated with avatar-based participant tiles — the focus is on UI/UX and meeting workflows.
-3. **Local Development**: Meeting links use `localhost:3000` as the base URL.
-4. **SQLite**: Database is file-based and auto-created on first run. Delete `zoom_clone.db` to reset.
+1. **Local Development**: Meeting links use `localhost:3000` as the base URL.
+2. **SQLite**: Database is file-based and auto-created on first run. Delete `zoom_clone_v2.db` to reset.
+3. **LiveKit Cloud**: Requires a LiveKit Cloud project with valid `LIVEKIT_URL`, `LIVEKIT_API_KEY`, and `LIVEKIT_API_SECRET` in the `.env` file.
 
 ---
 
