@@ -7,6 +7,11 @@ A full-stack **Zoom-like video conferencing web application** built with **Next.
 ![Tech Stack](https://img.shields.io/badge/Database-SQLite-003B57?logo=sqlite)
 ![Tech Stack](https://img.shields.io/badge/Styling-Tailwind%20CSS-06B6D4?logo=tailwindcss)
 
+> [!IMPORTANT]
+> **Branch Information:** This repository is organized into different branches to showcase various stages and capabilities of the application:
+> - **`main`**: The core application featuring the complete pixel-perfect UI, user authentication, FastAPI backend, SQLite database, and simulated meeting workflows.
+> - **`video-chat-enabled`**: This branch contains the advanced **LiveKit WebRTC** integration, enabling fully functional, real-time low-latency video and audio streaming for meetings. Switch to this branch if you want to run the real-time video features!
+
 ---
 
 ## ✨ Features
