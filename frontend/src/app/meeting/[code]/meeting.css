@@ -271,4 +271,13 @@
   .toolbar-btn-end {
     display: none !important;
   }
+  .desktop-only {
+    display: none !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-only {
+    display: none !important;
+  }
 }

@@ -7,19 +7,27 @@ from app.crud.meeting import (
     get_meeting_by_code,
     update_meeting_status,
 )
+from fastapi import HTTPException
 from app.crud.participant import (
     add_participant,
     get_participants_by_meeting,
     remove_participant,
 )
-from app.crud.user import get_default_user
+from app.crud.user import get_default_user, get_user_by_id
 from app.utils.meeting_id import generate_meeting_code, generate_meeting_link
 from app.schemas.meeting import ScheduleMeetingRequest
 
 
-def create_instant_meeting(db: Session):
+def create_instant_meeting(db: Session, host_id: int = None):
     """Create an instant meeting and add the host as participant."""
-    user = get_default_user(db)
+    if host_id:
+        user = get_user_by_id(db, host_id)
+        if not user:
+            raise HTTPException(status_code=401, detail="User not found. Please log in again.")
+    else:
+        user = get_default_user(db)
+        if not user:
+            raise HTTPException(status_code=500, detail="No default user available")
     code = generate_meeting_code()
 
     meeting = create_meeting(
@@ -57,9 +65,16 @@ def create_instant_meeting(db: Session):
     }
 
 
-def schedule_meeting(db: Session, data: ScheduleMeetingRequest):
+def schedule_meeting(db: Session, data: ScheduleMeetingRequest, host_id: int = None):
     """Schedule a future meeting."""
-    user = get_default_user(db)
+    if host_id:
+        user = get_user_by_id(db, host_id)
+        if not user:
+            raise HTTPException(status_code=401, detail="User not found. Please log in again.")
+    else:
+        user = get_default_user(db)
+        if not user:
+            raise HTTPException(status_code=500, detail="No default user available")
     code = generate_meeting_code()
 
     meeting = create_meeting(

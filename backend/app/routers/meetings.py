@@ -1,5 +1,5 @@
 import os
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Header
 from sqlalchemy.orm import Session
 from livekit.api import AccessToken, VideoGrants
 
@@ -31,15 +31,15 @@ router = APIRouter(
 
 
 @router.post("/instant", response_model=InstantMeetingResponse)
-def instant_meeting(db: Session = Depends(get_db)):
+def instant_meeting(db: Session = Depends(get_db), x_user_id: int | None = Header(None)):
     """Create an instant meeting."""
-    return create_instant_meeting(db)
+    return create_instant_meeting(db, x_user_id)
 
 
 @router.post("/schedule", response_model=InstantMeetingResponse)
-def schedule(data: ScheduleMeetingRequest, db: Session = Depends(get_db)):
+def schedule(data: ScheduleMeetingRequest, db: Session = Depends(get_db), x_user_id: int | None = Header(None)):
     """Schedule a future meeting."""
-    return schedule_meeting(db, data)
+    return schedule_meeting(db, data, x_user_id)
 
 
 @router.post("/join", response_model=JoinMeetingResponse)

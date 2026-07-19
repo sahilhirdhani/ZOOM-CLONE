@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+
 import {
   Mic,
   MicOff,
@@ -60,6 +62,19 @@ export default function MeetingToolbar({
   const { localParticipant } = useLocalParticipant();
   const isScreenSharing = localParticipant.isScreenShareEnabled;
 
+
+
+  useEffect(() => {
+    if (localParticipant) {
+      if (localParticipant.isMicrophoneEnabled === isMuted) {
+        localParticipant.setMicrophoneEnabled(!isMuted).catch(console.error);
+      }
+      if (localParticipant.isCameraEnabled === isVideoOff) {
+        localParticipant.setCameraEnabled(!isVideoOff).catch(console.error);
+      }
+    }
+  }, [isMuted, isVideoOff, localParticipant]);
+
   const toggleScreenShare = async () => {
     try {
       await localParticipant.setScreenShareEnabled(!isScreenSharing);
@@ -96,7 +111,7 @@ export default function MeetingToolbar({
       </button>
 
       <button
-        className={`toolbar-btn ${showParticipants ? "active" : ""}`}
+        className={`toolbar-btn desktop-only ${showParticipants ? "active" : ""}`}
         onClick={() => {
           setShowParticipants(!showParticipants);
           setShowChat(false);
@@ -118,7 +133,7 @@ export default function MeetingToolbar({
       </button>
 
       <button
-        className={`toolbar-btn ${isHandRaised ? "active" : ""}`}
+        className={`toolbar-btn desktop-only ${isHandRaised ? "active" : ""}`}
         onClick={handleToggleHand}
         style={isHandRaised ? { color: "#F5A623" } : {}}
       >
@@ -126,7 +141,7 @@ export default function MeetingToolbar({
         <span>{isHandRaised ? "Lower Hand" : "Raise Hand"}</span>
       </button>
 
-      <div style={{ position: "relative" }}>
+      <div className="desktop-only" style={{ position: "relative" }}>
         <button
           className={`toolbar-btn ${showReactionsMenu ? "active" : ""}`}
           onClick={() => setShowReactionsMenu(!showReactionsMenu)}
@@ -241,6 +256,55 @@ export default function MeetingToolbar({
               <Copy style={{ width: 14, height: 14 }} />
               Share Link
             </button>
+
+            {/* Mobile-only menu items */}
+            <button
+              className="mobile-only"
+              onClick={() => {
+                setShowParticipants(!showParticipants);
+                setShowMoreMenu(false);
+              }}
+              style={{
+                background: "none", border: "none", color: "white", fontSize: "13px", fontWeight: "500",
+                cursor: "pointer", padding: "8px 12px", borderRadius: "4px", textAlign: "left", width: "100%",
+                display: "flex", alignItems: "center", gap: "8px", transition: "background 0.15s",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.08)")}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
+            >
+              <Users style={{ width: 14, height: 14 }} />
+              Participants
+            </button>
+
+            <button
+              className="mobile-only"
+              onClick={() => {
+                handleToggleHand();
+                setShowMoreMenu(false);
+              }}
+              style={{
+                background: "none", border: "none", color: "white", fontSize: "13px", fontWeight: "500",
+                cursor: "pointer", padding: "8px 12px", borderRadius: "4px", textAlign: "left", width: "100%",
+                display: "flex", alignItems: "center", gap: "8px", transition: "background 0.15s",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.08)")}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
+            >
+              <Hand style={{ width: 14, height: 14 }} />
+              {isHandRaised ? "Lower Hand" : "Raise Hand"}
+            </button>
+
+            <div className="mobile-only" style={{ display: 'flex', gap: '4px', padding: '8px 12px', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.08)', marginTop: '4px', paddingTop: '8px' }}>
+              {["👏", "👍", "❤️", "😂", "😮", "🎉"].map(emoji => (
+                <button
+                  key={emoji}
+                  onClick={() => { handleSendReaction(emoji); setShowMoreMenu(false); }}
+                  style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer' }}
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
 
             {isHost && (
               <button
