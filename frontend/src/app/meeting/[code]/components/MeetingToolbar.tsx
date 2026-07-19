@@ -14,6 +14,7 @@ import {
   Copy,
   PhoneOff,
 } from "lucide-react";
+import { useLocalParticipant } from "@livekit/components-react";
 
 interface MeetingToolbarProps {
   isMuted: boolean;
@@ -56,6 +57,17 @@ export default function MeetingToolbar({
   handleEndMeeting,
   isHost,
 }: MeetingToolbarProps) {
+  const { localParticipant } = useLocalParticipant();
+  const isScreenSharing = localParticipant.isScreenShareEnabled;
+
+  const toggleScreenShare = async () => {
+    try {
+      await localParticipant.setScreenShareEnabled(!isScreenSharing);
+    } catch (e) {
+      console.error("Failed to share screen", e);
+    }
+  };
+
   return (
     <div className="meeting-toolbar">
       <button
@@ -74,9 +86,13 @@ export default function MeetingToolbar({
         <span>{isVideoOff ? "Start Video" : "Stop Video"}</span>
       </button>
 
-      <button className="toolbar-btn">
+      <button 
+        className={`toolbar-btn ${isScreenSharing ? "active" : ""}`}
+        onClick={toggleScreenShare}
+        style={isScreenSharing ? { color: "#00A825" } : {}}
+      >
         <Monitor />
-        <span>Share</span>
+        <span>{isScreenSharing ? "Stop Sharing" : "Share"}</span>
       </button>
 
       <button

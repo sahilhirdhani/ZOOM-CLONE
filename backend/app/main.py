@@ -23,7 +23,7 @@ import os
 from pathlib import Path
 
 # Load .env file
-env_path = Path(__file__).parent / ".env"
+env_path = Path(__file__).parent.parent / ".env"
 if env_path.exists():
     with open(env_path) as f:
         for line in f:

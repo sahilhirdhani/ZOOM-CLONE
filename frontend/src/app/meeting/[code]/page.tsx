@@ -15,7 +15,10 @@ import {
   sendMessage,
   getMessages,
 } from "@/lib/api";
+import { getLiveKitToken } from "@/lib/api";
 import type { Meeting, Participant, Message } from "@/lib/types";
+import { LiveKitRoom, RoomAudioRenderer } from "@livekit/components-react";
+import "@livekit/components-styles";
 import "./meeting.css";
 
 // Extracted Sub-components
@@ -70,28 +73,59 @@ export default function MeetingRoomPage({
   const [meetingLink, setMeetingLink] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [lkToken, setLkToken] = useState<string>("");
 
   const [localParticipantId, setLocalParticipantId] = useState<number | null>(null);
 
+  const [isJoining, setIsJoining] = useState(false);
+
   useEffect(() => {
+    if (participants.length === 0) return;
+
     const storedId = sessionStorage.getItem(`meeting_participant_${code}`);
     if (storedId) {
-      setLocalParticipantId(parseInt(storedId, 10));
-    } else {
-      const storedUser = localStorage.getItem("zoom_user");
-      if (storedUser && participants.length > 0) {
-        const user = JSON.parse(storedUser);
-        const hostPart = participants.find((p) => p.role === "HOST");
-        if (hostPart && (hostPart.email === user.email || hostPart.display_name === user.name)) {
-          setLocalParticipantId(hostPart.id);
-          sessionStorage.setItem(`meeting_participant_${code}`, hostPart.id.toString());
-        }
+      const parsedId = parseInt(storedId, 10);
+      if (participants.some((p) => p.id === parsedId)) {
+        setLocalParticipantId(parsedId);
+        return;
       }
     }
-  }, [code, participants]);
+
+    const storedUser = localStorage.getItem("zoom_user");
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
+      const myPart = participants.find((p) => p.email === user.email || p.display_name === user.name);
+      
+      if (myPart) {
+        setLocalParticipantId(myPart.id);
+        sessionStorage.setItem(`meeting_participant_${code}`, myPart.id.toString());
+      } else if (!isJoining) {
+        // User not in meeting, join automatically
+        setIsJoining(true);
+        import("@/lib/api").then(({ joinMeeting }) => {
+          joinMeeting({ meeting_code: code, display_name: user.name }).then((res) => {
+            setLocalParticipantId(res.participant_id);
+            sessionStorage.setItem(`meeting_participant_${code}`, res.participant_id.toString());
+            // It will trigger a re-fetch on the next interval
+          }).catch((err) => {
+             console.error(err);
+             setIsJoining(false);
+          });
+        });
+      }
+    }
+  }, [code, participants, isJoining]);
 
   const localParticipant = participants.find((p) => p.id === localParticipantId);
   const isHost = localParticipant?.role === "HOST";
+
+  useEffect(() => {
+    if (localParticipant && !lkToken) {
+      getLiveKitToken(code, localParticipant.display_name)
+        .then((res) => setLkToken(res.token))
+        .catch((err) => console.error("Failed to fetch LiveKit token", err));
+    }
+  }, [localParticipant, code, lkToken]);
 
   // Toolbar state
   const [isMuted, setIsMuted] = useState(false);
@@ -317,6 +351,16 @@ export default function MeetingRoomPage({
 
   return (
     <div className="meeting-room">
+      {lkToken ? (
+        <LiveKitRoom
+          video={!isVideoOff}
+          audio={!isMuted}
+          token={lkToken}
+          serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
+          data-lk-theme="default"
+          style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100%' }}
+          onConnected={() => console.log('Connected to LiveKit')}
+        >
       {/* Header */}
       <MeetingHeader
         meetingTitle={meeting.title}
@@ -341,6 +385,7 @@ export default function MeetingRoomPage({
           getAvatarColor={getAvatarColor}
           getInitials={getInitials}
         />
+        <RoomAudioRenderer />
 
         {/* Participants Panel */}
         <ParticipantsPanel
@@ -383,6 +428,12 @@ export default function MeetingRoomPage({
         handleEndMeeting={handleEndMeeting}
         isHost={isHost}
       />
+      </LiveKitRoom>
+      ) : (
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+          <div className="loading-spinner" />
+        </div>
+      )}
     </div>
   );
 }

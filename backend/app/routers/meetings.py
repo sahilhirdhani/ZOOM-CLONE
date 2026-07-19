@@ -1,5 +1,7 @@
+import os
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from livekit.api import AccessToken, VideoGrants
 
 from app.database import get_db
 from app.schemas.meeting import (
@@ -152,4 +154,32 @@ def get_messages(
 ):
     """Retrieve all chat messages in a meeting."""
     return message_service.get_meeting_messages(db, code)
+
+
+@router.get("/{code}/livekit-token")
+def get_livekit_token(
+    code: str,
+    participant_name: str,
+    db: Session = Depends(get_db)
+):
+    """Generate a LiveKit access token for a participant."""
+    meeting = get_meeting_by_code(db, code)
+    if not meeting:
+        raise HTTPException(status_code=404, detail="Meeting not found")
+
+    api_key = os.getenv("LIVEKIT_API_KEY")
+    api_secret = os.getenv("LIVEKIT_API_SECRET")
+
+    if not api_key or not api_secret:
+        raise HTTPException(status_code=500, detail="LiveKit credentials not configured on server")
+
+    token = AccessToken(api_key, api_secret) \
+        .with_identity(participant_name) \
+        .with_name(participant_name) \
+        .with_grants(VideoGrants(
+            room_join=True,
+            room=code,
+        ))
+    
+    return {"token": token.to_jwt()}
 

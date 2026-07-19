@@ -127,4 +127,9 @@ export async function logIn(data: any): Promise<any> {
   return res.data;
 }
 
+export async function getLiveKitToken(code: string, participantName: string): Promise<{ token: string }> {
+  const res = await api.get(`/meetings/${code}/livekit-token?participant_name=${encodeURIComponent(participantName)}`);
+  return res.data;
+}
+
 export default api;
