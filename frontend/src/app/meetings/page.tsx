@@ -30,6 +30,7 @@ export default function MeetingsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showNewMeeting, setShowNewMeeting] = useState(false);
   const [showSchedule, setShowSchedule] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
@@ -80,8 +81,8 @@ export default function MeetingsPage() {
 
   return (
     <>
-      <Sidebar />
-      <TopBar title="Meetings" />
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <TopBar title="Meetings" sidebarOpen={sidebarOpen} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
 
       <main className="main-content">
         {/* Header */}

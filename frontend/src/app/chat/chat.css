@@ -24,6 +24,9 @@
   border: 1px solid var(--zoom-border);
   background: var(--zoom-bg);
   outline: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--zoom-text-primary);
 }
 
 .chat-search svg {
@@ -52,6 +55,7 @@
   text-align: left;
   border-bottom: 1px solid var(--zoom-border-light);
   transition: background 0.1s;
+  font-family: inherit;
 }
 
 .chat-list-item:hover {
@@ -158,6 +162,31 @@
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+/* Back button — hidden on desktop */
+.chat-back-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--zoom-text-primary);
+  cursor: pointer;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.chat-back-btn:hover {
+  background: var(--zoom-bg);
+}
+
+.chat-back-btn svg {
+  width: 20px;
+  height: 20px;
 }
 
 .chat-window-avatar {
@@ -295,6 +324,7 @@
   outline: none;
   font-size: 14px;
   color: var(--zoom-text-primary);
+  font-family: inherit;
 }
 
 .chat-send-btn {
@@ -338,3 +368,83 @@
 }
 
 
+/* ============ MOBILE RESPONSIVE (≤768px) ============ */
+@media (max-width: 768px) {
+  /* Full width list / chat — only show one at a time */
+  .chat-main-content .chat-list {
+    width: 100%;
+    border-right: none;
+  }
+
+  .chat-main-content .chat-window,
+  .chat-main-content .chat-empty-state {
+    display: none;
+  }
+
+  /* When viewing a chat conversation */
+  .chat-main-content.mobile-show-chat .chat-list {
+    display: none;
+  }
+
+  .chat-main-content.mobile-show-chat .chat-window,
+  .chat-main-content.mobile-show-chat .chat-empty-state {
+    display: flex;
+    width: 100%;
+  }
+
+  /* Show the back button */
+  .chat-back-btn {
+    display: flex;
+  }
+
+  /* Tighter padding on mobile */
+  .chat-window-header {
+    padding: 0 12px;
+    height: 56px;
+  }
+
+  .chat-messages {
+    padding: 16px 12px;
+    gap: 12px;
+  }
+
+  .chat-message {
+    max-width: 82%;
+  }
+
+  .chat-input-area {
+    padding: 10px 12px;
+  }
+
+  .chat-input-actions {
+    margin-bottom: 6px;
+  }
+
+  .chat-bubble {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+
+  .chat-window-name {
+    font-size: 15px;
+  }
+
+  /* Conversation list items a bit more spacious on mobile */
+  .chat-list-item {
+    padding: 14px 16px;
+  }
+
+  .chat-list-item-avatar {
+    width: 48px;
+    height: 48px;
+    font-size: 17px;
+  }
+
+  .chat-list-item-name {
+    font-size: 15px;
+  }
+
+  .chat-list-item-preview {
+    font-size: 13px;
+  }
+}

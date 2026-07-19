@@ -60,6 +60,7 @@ export default function ContactsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState<"all" | "starred" | "online">("all");
   const [selectedDept, setSelectedDept] = useState<string>("all");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const departments = ["all", ...Array.from(new Set(contacts.map((c) => c.department)))];
 
@@ -78,8 +79,8 @@ export default function ContactsPage() {
 
   return (
     <>
-      <Sidebar />
-      <TopBar title="Contacts" />
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <TopBar title="Contacts" sidebarOpen={sidebarOpen} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
 
       <main className="main-content">
         {/* Header */}

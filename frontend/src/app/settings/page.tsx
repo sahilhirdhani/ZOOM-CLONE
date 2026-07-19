@@ -12,6 +12,7 @@ import {
   Shield,
   ChevronRight,
   Check,
+  ArrowLeft,
 } from "lucide-react";
 import { getDashboard } from "@/lib/api";
 import type { User as UserType } from "@/lib/types";
@@ -39,6 +40,8 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState("profile");
   const [saved, setSaved] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [mobileShowSection, setMobileShowSection] = useState(false);
   
   // Profile form states
   const [name, setName] = useState("");
@@ -143,10 +146,10 @@ export default function SettingsPage() {
 
   return (
     <>
-      <Sidebar />
-      <TopBar title="Settings" />
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <TopBar title="Settings" sidebarOpen={sidebarOpen} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
 
-      <main className="main-content">
+      <main className={`main-content ${mobileShowSection ? "mobile-show-content" : "mobile-show-nav"}`}>
         <div className="settings-layout">
           {/* Settings Navigation */}
           <div className="settings-nav">
@@ -155,7 +158,10 @@ export default function SettingsPage() {
               <button
                 key={section.id}
                 className={`settings-nav-item ${activeSection === section.id ? "active" : ""}`}
-                onClick={() => setActiveSection(section.id)}
+                onClick={() => {
+                  setActiveSection(section.id);
+                  setMobileShowSection(true);
+                }}
                 id={`settings-nav-${section.id}`}
               >
                 {section.icon}
@@ -167,6 +173,14 @@ export default function SettingsPage() {
 
           {/* Settings Content */}
           <div className="settings-content">
+            {/* Mobile Back Button */}
+            <button 
+              className="settings-back-btn" 
+              onClick={() => setMobileShowSection(false)}
+            >
+              <ArrowLeft />
+              <span>Settings</span>
+            </button>
             {loading ? (
               <div className="loading-spinner" />
             ) : (

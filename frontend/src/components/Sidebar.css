@@ -1,3 +1,4 @@
+/* ====== SIDEBAR — Desktop (default) ====== */
 .sidebar {
   position: fixed;
   left: 0;
@@ -11,6 +12,12 @@
   align-items: stretch;
   padding: 16px;
   z-index: 50;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .sidebar-logo {
@@ -33,6 +40,37 @@
   font-weight: 700;
   color: var(--zoom-text-primary);
   letter-spacing: -0.01em;
+}
+
+/* Close button — hidden on desktop */
+.sidebar-close-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--zoom-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-bottom: 24px;
+}
+
+.sidebar-close-btn:hover {
+  background: var(--zoom-bg);
+  color: var(--zoom-text-primary);
+}
+
+.sidebar-close-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Backdrop — hidden on desktop */
+.sidebar-backdrop {
+  display: none;
 }
 
 .sidebar-nav {
@@ -136,74 +174,6 @@
   object-fit: cover;
 }
 
-/* Responsive sidebar */
-@media (max-width: 1024px) {
-  .sidebar {
-    top: var(--topbar-height);
-    bottom: auto;
-    width: 100%;
-    height: 60px;
-    border-right: none;
-    border-bottom: 1px solid var(--zoom-border);
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 16px;
-  }
-
-  .sidebar-logo {
-    display: none;
-  }
-
-  .sidebar-nav {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-around;
-    gap: 4px;
-    height: 100%;
-  }
-
-  .sidebar-item {
-    height: 100%;
-    width: auto;
-    flex-direction: column;
-    justify-content: center;
-    gap: 2px;
-    font-size: 10px;
-    padding: 0 8px;
-  }
-
-  .sidebar-item.active::before {
-    display: none;
-  }
-
-  .sidebar-item svg {
-    width: 20px;
-    height: 20px;
-  }
-
-  .sidebar-bottom {
-    flex-direction: row;
-    align-items: center;
-    width: auto;
-    padding: 0;
-    gap: 16px;
-    border-top: none;
-  }
-
-  .sidebar-bottom-row {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 12px;
-    width: auto;
-  }
-
-  .sidebar-avatar {
-    margin-left: 0;
-  }
-}
-
 .sidebar-avatar-container {
   position: relative;
   cursor: pointer;
@@ -223,15 +193,7 @@
   box-shadow: var(--zoom-shadow-lg);
   z-index: 1000;
   min-width: 130px;
-}
-
-@media (max-width: 1024px) {
-  .sidebar-dropdown-menu {
-    top: 40px;
-    bottom: auto;
-    left: auto;
-    right: 0;
-  }
+  animation: fadeIn 0.12s ease;
 }
 
 .dropdown-item {
@@ -261,4 +223,122 @@
 .dropdown-item.logout:hover {
   background: rgba(224, 32, 32, 0.1);
   color: #fca5a5;
+}
+
+
+/* ==================================================
+   RESPONSIVE — TABLET & MOBILE (≤1024px)
+   Sidebar becomes a slide-in drawer from the left
+   ================================================== */
+@media (max-width: 1024px) {
+  .sidebar {
+    top: 0;
+    bottom: 0;
+    width: 280px;
+    height: 100vh;
+    height: 100dvh;
+    border-right: 1px solid var(--zoom-border);
+    flex-direction: column;
+    align-items: stretch;
+    padding: 16px;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 200;
+    box-shadow: none;
+  }
+
+  .sidebar.sidebar-mobile-open {
+    transform: translateX(0);
+    box-shadow: var(--zoom-shadow-xl);
+  }
+
+  /* Show close button and logo in drawer */
+  .sidebar-close-btn {
+    display: flex;
+  }
+
+  .sidebar-logo {
+    display: flex;
+    padding: 8px 12px 0;
+  }
+
+  .sidebar-header {
+    margin-bottom: 16px;
+  }
+
+  /* Full-width sidebar items (vertical list, like desktop) */
+  .sidebar-nav {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    height: auto;
+    overflow-y: auto;
+  }
+
+  .sidebar-item {
+    height: 44px;
+    width: 100%;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+    font-size: 14px;
+    padding: 0 12px;
+  }
+
+  .sidebar-item svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .sidebar-item.active::before {
+    display: block;
+  }
+
+  .sidebar-bottom {
+    flex-direction: column;
+    width: 100%;
+    padding: 16px 0 0;
+    gap: 12px;
+    border-top: 1px solid var(--zoom-border);
+  }
+
+  .sidebar-bottom-row {
+    flex-direction: row;
+    width: 100%;
+  }
+
+  /* Backdrop */
+  .sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 199;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .sidebar-backdrop.open {
+    display: block;
+    opacity: 1;
+  }
+
+  /* Avatar dropdown in drawer context */
+  .sidebar-dropdown-menu {
+    bottom: 40px;
+    right: 0;
+    left: auto;
+  }
+
+  /* Hide the sidebar avatar on mobile — it's in TopBar now */
+  .sidebar-avatar-container {
+    display: none;
+  }
+}
+
+/* ====== SMALL MOBILE (≤480px) ====== */
+@media (max-width: 480px) {
+  .sidebar {
+    width: 260px;
+  }
 }

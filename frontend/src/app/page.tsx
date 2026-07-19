@@ -23,6 +23,7 @@ export default function Home() {
   const [showSchedule, setShowSchedule] = useState(false);
   const [showJoin, setShowJoin] = useState(false);
   const [localUser, setLocalUser] = useState<any>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const fetchDashboard = useCallback(async () => {
     try {
@@ -81,8 +82,8 @@ export default function Home() {
   if (loading) {
     return (
       <>
-        <Sidebar />
-        <TopBar />
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <TopBar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
         <main className="main-content">
           <div className="loading-spinner" />
         </main>
@@ -92,8 +93,17 @@ export default function Home() {
 
   return (
     <>
-      <Sidebar avatar={localUser?.avatar || data?.user.avatar} />
-      <TopBar title="Home" />
+      <Sidebar
+        avatar={localUser?.avatar || data?.user.avatar}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
+      <TopBar
+        title="Home"
+        sidebarOpen={sidebarOpen}
+        onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+        avatar={localUser?.avatar || data?.user.avatar}
+      />
 
       <main className="main-content">
         {/* Header */}

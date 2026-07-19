@@ -13,6 +13,7 @@ import {
   Delete,
   Search,
   Star,
+  Grid3X3,
 } from "lucide-react";
 import "./phone.css";
 
@@ -63,6 +64,9 @@ export default function PhonePage() {
   const [dialNumber, setDialNumber] = useState("");
   const [activeTab, setActiveTab] = useState<"recent" | "favorites">("recent");
   const [filter, setFilter] = useState<"all" | "missed">("all");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  // Mobile: which bottom tab is active
+  const [mobileTab, setMobileTab] = useState<"recents" | "keypad" | "favorites">("recents");
 
   const handleDigitPress = (digit: string) => {
     setDialNumber((prev) => prev + digit);
@@ -87,11 +91,12 @@ export default function PhonePage() {
 
   return (
     <>
-      <Sidebar />
-      <TopBar title="Phone" />
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <TopBar title="Phone" sidebarOpen={sidebarOpen} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
 
       <main className="main-content">
-        <div className="phone-layout">
+        {/* ===== DESKTOP LAYOUT (unchanged) ===== */}
+        <div className="phone-layout phone-desktop-layout">
           {/* Left: Call History */}
           <div className="phone-history">
             <div className="phone-history-header">
@@ -212,6 +217,150 @@ export default function PhonePage() {
             </div>
             <button className="phone-call-btn" disabled={!dialNumber} id="phone-call-button">
               <PhoneIcon style={{ width: 24, height: 24 }} />
+            </button>
+          </div>
+        </div>
+
+        {/* ===== MOBILE LAYOUT ===== */}
+        <div className="phone-mobile-layout">
+          {/* Mobile content area — switches based on tab */}
+          <div className="phone-mobile-content">
+            {/* Recents tab */}
+            {mobileTab === "recents" && (
+              <div className="phone-mobile-recents">
+                <div className="phone-mobile-section-header">
+                  <h2>Recents</h2>
+                  <div className="phone-filter">
+                    <button
+                      className={`phone-filter-btn ${filter === "all" ? "active" : ""}`}
+                      onClick={() => setFilter("all")}
+                    >
+                      All
+                    </button>
+                    <button
+                      className={`phone-filter-btn ${filter === "missed" ? "active" : ""}`}
+                      onClick={() => setFilter("missed")}
+                    >
+                      Missed
+                    </button>
+                  </div>
+                </div>
+                <div className="phone-mobile-call-list">
+                  {filteredCalls.map((call) => (
+                    <div key={call.id} className="phone-mobile-call-item">
+                      <div className="phone-call-avatar">
+                        <span>{call.avatar}</span>
+                      </div>
+                      <div className="phone-mobile-call-info">
+                        <div className="phone-mobile-call-name">
+                          <span className={call.type === "missed" ? "missed" : ""}>{call.name}</span>
+                          {call.isVideo && <Video style={{ width: 13, height: 13, color: "var(--zoom-text-tertiary)" }} />}
+                        </div>
+                        <div className="phone-mobile-call-detail">
+                          {getCallIcon(call.type)}
+                          <span>{call.time}</span>
+                        </div>
+                      </div>
+                      <div className="phone-mobile-call-right">
+                        {call.duration !== "—" && <span className="phone-mobile-duration">{call.duration}</span>}
+                        <button className="phone-mobile-call-btn-small" title="Call">
+                          <PhoneIcon style={{ width: 16, height: 16 }} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Keypad tab */}
+            {mobileTab === "keypad" && (
+              <div className="phone-mobile-keypad">
+                <div className="phone-mobile-display">
+                  <input
+                    type="text"
+                    value={dialNumber}
+                    onChange={(e) => setDialNumber(e.target.value)}
+                    placeholder="Enter a number"
+                    className="phone-mobile-display-input"
+                  />
+                  {dialNumber && (
+                    <button className="phone-backspace" onClick={handleBackspace}>
+                      <Delete style={{ width: 20, height: 20 }} />
+                    </button>
+                  )}
+                </div>
+                <div className="phone-mobile-dialpad">
+                  {dialPadKeys.map((key) => (
+                    <button
+                      key={key.digit}
+                      className="phone-mobile-key"
+                      onClick={() => handleDigitPress(key.digit)}
+                    >
+                      <span className="phone-key-digit">{key.digit}</span>
+                      {key.letters && <span className="phone-key-letters">{key.letters}</span>}
+                    </button>
+                  ))}
+                </div>
+                <button className="phone-mobile-call-fab" disabled={!dialNumber}>
+                  <PhoneIcon style={{ width: 28, height: 28 }} />
+                </button>
+              </div>
+            )}
+
+            {/* Favorites tab */}
+            {mobileTab === "favorites" && (
+              <div className="phone-mobile-favorites">
+                <div className="phone-mobile-section-header">
+                  <h2>Favorites</h2>
+                </div>
+                <div className="phone-mobile-favorites-list">
+                  {favorites.map((fav, i) => (
+                    <div key={i} className="phone-mobile-favorite-item">
+                      <div className="phone-call-avatar phone-mobile-fav-avatar">
+                        <span>{fav.avatar}</span>
+                      </div>
+                      <div className="phone-mobile-fav-info">
+                        <div className="phone-mobile-fav-name">{fav.name}</div>
+                        <div className="phone-mobile-fav-number">{fav.number}</div>
+                      </div>
+                      <div className="phone-mobile-fav-actions">
+                        <button className="phone-mobile-call-btn-small" title="Call">
+                          <PhoneIcon style={{ width: 16, height: 16 }} />
+                        </button>
+                        <button className="phone-mobile-call-btn-small" title="Video">
+                          <Video style={{ width: 16, height: 16 }} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Mobile bottom tab bar */}
+          <div className="phone-mobile-tabbar">
+            <button
+              className={`phone-mobile-tabbar-item ${mobileTab === "recents" ? "active" : ""}`}
+              onClick={() => setMobileTab("recents")}
+            >
+              <Clock style={{ width: 22, height: 22 }} />
+              <span>Recents</span>
+            </button>
+            <button
+              className={`phone-mobile-tabbar-item ${mobileTab === "keypad" ? "active" : ""}`}
+              onClick={() => setMobileTab("keypad")}
+            >
+              <Grid3X3 style={{ width: 22, height: 22 }} />
+              <span>Keypad</span>
+            </button>
+            <button
+              className={`phone-mobile-tabbar-item ${mobileTab === "favorites" ? "active" : ""}`}
+              onClick={() => setMobileTab("favorites")}
+            >
+              <Star style={{ width: 22, height: 22 }} />
+              <span>Favorites</span>
             </button>
           </div>
         </div>

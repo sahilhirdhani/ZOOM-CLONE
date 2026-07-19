@@ -10,6 +10,7 @@ import {
   Image as ImageIcon,
   Smile,
   Send,
+  ArrowLeft,
 } from "lucide-react";
 import type { Conversation } from "../mockData";
 
@@ -18,6 +19,7 @@ interface ChatWindowProps {
   messageInput: string;
   setMessageInput: (val: string) => void;
   handleSend: () => void;
+  onBack?: () => void;
 }
 
 export default function ChatWindow({
@@ -25,6 +27,7 @@ export default function ChatWindow({
   messageInput,
   setMessageInput,
   handleSend,
+  onBack,
 }: ChatWindowProps) {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -38,6 +41,14 @@ export default function ChatWindow({
       {/* Header */}
       <div className="chat-window-header">
         <div className="chat-window-header-left">
+          {/* Back arrow for mobile */}
+          <button
+            className="chat-back-btn"
+            onClick={onBack}
+            aria-label="Back to conversations"
+          >
+            <ArrowLeft />
+          </button>
           <div className="chat-window-avatar">
             <span>{selectedConversation.avatar}</span>
             {selectedConversation.online && <div className="chat-online-dot" />}

@@ -14,6 +14,9 @@ export default function ChatPage() {
   const [selectedId, setSelectedId] = useState<number | null>(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [messageInput, setMessageInput] = useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  // Mobile: track whether we're viewing the chat window or the list
+  const [mobileShowChat, setMobileShowChat] = useState(false);
 
   const selectedConversation = conversations.find((c) => c.id === selectedId);
 
@@ -23,13 +26,22 @@ export default function ChatPage() {
     }
   };
 
+  const handleSelectConversation = (id: number) => {
+    setSelectedId(id);
+    setMobileShowChat(true); // On mobile, switch to chat view
+  };
+
+  const handleBackToList = () => {
+    setMobileShowChat(false);
+  };
+
   return (
     <>
-      <Sidebar />
-      <TopBar title="Chat" />
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <TopBar title="Chat" sidebarOpen={sidebarOpen} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
 
       <main
-        className="main-content"
+        className={`main-content chat-main-content ${mobileShowChat ? "mobile-show-chat" : "mobile-show-list"}`}
         style={{
           padding: 0,
           display: "flex",
@@ -40,7 +52,7 @@ export default function ChatPage() {
         <ConversationList
           conversations={conversations}
           selectedId={selectedId}
-          setSelectedId={setSelectedId}
+          setSelectedId={handleSelectConversation}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
         />
@@ -52,6 +64,7 @@ export default function ChatPage() {
             messageInput={messageInput}
             setMessageInput={setMessageInput}
             handleSend={handleSend}
+            onBack={handleBackToList}
           />
         ) : (
           <div className="chat-empty-state">

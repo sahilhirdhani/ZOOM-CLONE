@@ -47,6 +47,8 @@
   background: var(--zoom-bg);
   outline: none;
   font-size: 14px;
+  font-family: inherit;
+  color: var(--zoom-text-primary);
 }
 
 .contacts-search svg {
@@ -82,6 +84,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  font-family: inherit;
 }
 
 .contacts-filter-tab.active {
@@ -222,3 +225,178 @@
 }
 
 
+/* ============ MOBILE RESPONSIVE (≤768px) ============ */
+@media (max-width: 768px) {
+  /* Header */
+  .contacts-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .contacts-header-left h1 {
+    font-size: 22px;
+  }
+
+  .contacts-header-left {
+    gap: 8px;
+  }
+
+  .contacts-header .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Filters — stacked, full width */
+  .contacts-filters {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+    margin-bottom: 16px;
+  }
+
+  .contacts-search {
+    width: 100%;
+  }
+
+  .contacts-filter-group {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .contacts-filter-tabs {
+    flex: 1;
+  }
+
+  .contacts-filter-tab {
+    flex: 1;
+    justify-content: center;
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+
+  .contacts-dept-select {
+    width: auto;
+    min-width: 120px;
+    height: 34px;
+    font-size: 12px;
+  }
+
+  /* Cards — full-width stacked with horizontal layout */
+  .contacts-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .contact-card {
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+    padding: 16px;
+    border-radius: 14px;
+    background: var(--zoom-white);
+    border: 1px solid var(--zoom-border);
+    position: relative;
+    overflow: visible;
+  }
+
+  .contact-card:hover {
+    transform: none;
+  }
+
+  .contact-card:active {
+    background: var(--zoom-bg);
+  }
+
+  /* Avatar on the left */
+  .contact-card-header {
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+
+  .contact-card-avatar {
+    width: 52px;
+    height: 52px;
+    font-size: 18px;
+  }
+
+  .contact-status-dot {
+    width: 13px;
+    height: 13px;
+    border-width: 2px;
+  }
+
+  /* Starred indicator */
+  .contact-card-header svg {
+    display: none; /* Hide desktop star icon, we'll show status inline */
+  }
+
+  /* Body info in the middle */
+  .contact-card-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .contact-card-name {
+    font-size: 15px;
+    margin-bottom: 2px;
+  }
+
+  .contact-card-role {
+    font-size: 12px;
+    margin-bottom: 2px;
+  }
+
+  .contact-card-dept {
+    font-size: 10px;
+    margin-bottom: 6px;
+    padding: 2px 6px;
+  }
+
+  .contact-card-status {
+    margin-bottom: 0;
+    font-size: 11px;
+  }
+
+  /* Actions — compact on the right */
+  .contact-card-actions {
+    flex-direction: row;
+    gap: 6px;
+    border-top: none;
+    padding-top: 0;
+    flex-shrink: 0;
+    justify-content: flex-end;
+  }
+
+  .contact-action-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .contact-action-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+/* Very small mobile — hide email/video action to save space */
+@media (max-width: 380px) {
+  .contact-card-avatar {
+    width: 44px;
+    height: 44px;
+    font-size: 16px;
+  }
+
+  .contact-action-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .contact-action-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+}

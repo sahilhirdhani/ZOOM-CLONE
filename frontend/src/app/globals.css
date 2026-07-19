@@ -462,59 +462,17 @@ body {
 }
 
 /* ============ RESPONSIVE ============ */
+
+/* Tablet — sidebar is now a drawer, so main-content uses full width */
 @media (max-width: 1024px) {
-  .sidebar {
-    top: var(--topbar-height);
-    bottom: auto;
-    width: 100%;
-    height: 60px;
-    border-right: none;
-    border-bottom: 1px solid var(--zoom-border);
-    flex-direction: row;
-    justify-content: space-between;
-    padding: 0 16px;
-  }
-
-  .sidebar-logo {
-    display: none;
-  }
-
-  .sidebar-nav {
-    flex-direction: row;
-    justify-content: space-around;
-    gap: 4px;
-    height: 100%;
-  }
-
-  .sidebar-item {
-    height: 100%;
-    width: 50px;
-  }
-
-  .sidebar-item.active::before {
-    display: none;
-  }
-
-  .sidebar-bottom {
-    flex-direction: row;
-    width: auto;
-    padding: 0;
-    gap: 16px;
-  }
-
-  .topbar {
-    left: 0;
-    top: 0;
-  }
-
   .main-content {
     margin-left: 0;
-    margin-top: calc(var(--topbar-height) + 60px);
-    margin-bottom: 0;
+    margin-top: var(--topbar-height);
     padding: 20px 16px;
   }
 }
 
+/* Small tablet */
 @media (max-width: 768px) {
   .meeting-room-header {
     padding: 0 10px !important;
@@ -568,10 +526,6 @@ body {
     padding: 20px 12px;
   }
 
-  .topbar-search {
-    width: 200px;
-  }
-
   .meeting-card {
     flex-direction: column;
     align-items: flex-start;
@@ -587,29 +541,19 @@ body {
   }
 }
 
+/* Mobile */
 @media (max-width: 480px) {
   .action-cards {
     grid-template-columns: 1fr;
     gap: 8px;
   }
 
-  .topbar-search {
-    display: none;
-  }
-
   .join-container {
     margin: 16px;
     padding: 28px 20px;
   }
-}
 
-
-/* ============ RESPONSIVE GENERAL ============ */
-@media (max-width: 1024px) {
   .main-content {
-    margin-left: 0;
-    margin-top: calc(var(--topbar-height) + 60px);
-    margin-bottom: 0;
-    padding: 20px 16px;
+    padding: 16px 12px;
   }
 }

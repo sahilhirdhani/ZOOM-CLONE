@@ -244,3 +244,112 @@
 }
 
 
+/* ============ MOBILE RESPONSIVE (≤768px) ============ */
+@media (max-width: 768px) {
+  .calendar-layout {
+    flex-direction: column;
+    height: auto;
+    gap: 0;
+  }
+
+  .calendar-main {
+    border-radius: 12px 12px 0 0;
+    border-bottom: none;
+  }
+
+  .calendar-header {
+    padding: 14px 16px;
+  }
+
+  .calendar-header-left {
+    gap: 10px;
+  }
+
+  .calendar-header-left h1 {
+    font-size: 17px;
+  }
+
+  .calendar-header-left .btn {
+    font-size: 11px;
+    height: 26px;
+    padding: 0 10px;
+  }
+
+  .calendar-nav-btn {
+    width: 28px;
+    height: 28px;
+  }
+
+  .calendar-day-header {
+    padding: 8px 4px;
+    font-size: 12px;
+  }
+
+  .calendar-day {
+    padding: 4px;
+    align-items: center;
+  }
+
+  .calendar-day-number {
+    font-size: 13px;
+    width: 32px;
+    height: 32px;
+  }
+
+  .calendar-day-dots {
+    gap: 2px;
+    padding-bottom: 2px;
+  }
+
+  .calendar-dot {
+    width: 5px;
+    height: 5px;
+  }
+
+  /* Detail panel below the calendar */
+  .calendar-detail {
+    width: 100%;
+    border-radius: 0 0 12px 12px;
+    border-top: none;
+    min-height: 180px;
+    max-height: 300px;
+  }
+
+  .calendar-detail-header {
+    padding: 14px 16px;
+  }
+
+  .calendar-detail-header h2 {
+    font-size: 15px;
+  }
+
+  .calendar-detail-list {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .calendar-meeting-item {
+    padding: 10px 12px;
+  }
+
+  .calendar-detail-empty {
+    padding: 24px;
+  }
+
+  .calendar-detail-empty p {
+    font-size: 13px;
+  }
+}
+
+/* Very small mobile */
+@media (max-width: 380px) {
+  .calendar-day-number {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+
+  .calendar-header-left h1 {
+    font-size: 15px;
+  }
+}

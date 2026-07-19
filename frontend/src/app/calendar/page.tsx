@@ -35,6 +35,7 @@ export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState<number | null>(today.getDate());
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const fetchMeetings = useCallback(async () => {
     try {
@@ -115,8 +116,8 @@ export default function CalendarPage() {
 
   return (
     <>
-      <Sidebar />
-      <TopBar title="Calendar" />
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <TopBar title="Calendar" sidebarOpen={sidebarOpen} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
 
       <main className="main-content">
         <div className="calendar-layout">
