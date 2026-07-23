@@ -33,9 +33,6 @@ def seed_database():
         now = datetime.now()
         
         # Specific dates: July 20, July 21, July 23, and missed on July 18, 2026
-        date_20 = datetime(2026, 7, 20, 10, 30)
-        date_21 = datetime(2026, 7, 21, 14, 15)
-        date_23 = datetime(2026, 7, 23, 16, 0)
         date_missed = datetime(2026, 7, 18, 9, 0)
 
         meetings_data = [
@@ -44,7 +41,7 @@ def seed_database():
                 "description": "Deep dive into microservices architecture and scaling strategies",
                 "status": "SCHEDULED",
                 "visibility": "PRIVATE",
-                "scheduled_at": date_20,
+                "scheduled_at": now + timedelta(days=1),
                 "duration": 60,
                 "participants": [
                     ("Alice Johnson", "alice@example.com"),
@@ -57,7 +54,7 @@ def seed_database():
                 "description": "Plan the next sprint for React component migration",
                 "status": "SCHEDULED",
                 "visibility": "PRIVATE",
-                "scheduled_at": date_21,
+                "scheduled_at": now + timedelta(days=3),
                 "duration": 45,
                 "participants": [
                     ("David Lee", "david@example.com"),
@@ -70,7 +67,7 @@ def seed_database():
                 "description": "Final demo of the Zoom Clone project to stakeholders",
                 "status": "SCHEDULED",
                 "visibility": "PUBLIC",
-                "scheduled_at": date_23,
+                "scheduled_at": now + timedelta(days=5),
                 "duration": 90,
                 "participants": [
                     ("Noah Garcia", "noah@example.com"),

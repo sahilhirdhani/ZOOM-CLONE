@@ -1,12 +1,17 @@
+from datetime import datetime
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from app.models.meeting import Meeting
 
-
 def get_upcoming_meetings(db: Session):
-    """Get all scheduled meetings ordered by nearest first."""
+    """Get all scheduled meetings that haven't passed yet, ordered by nearest first."""
+    now = datetime.now()
     return (
         db.query(Meeting)
-        .filter(Meeting.status == "SCHEDULED")
+        .filter(
+            Meeting.status == "SCHEDULED",
+            Meeting.scheduled_at >= now
+        )
         .order_by(Meeting.scheduled_at.asc())
         .all()
     )
@@ -23,10 +28,16 @@ def get_recent_meetings(db: Session):
 
 
 def get_missed_meetings(db: Session):
-    """Get all missed meetings ordered by most recent first."""
+    """Get all missed meetings or scheduled meetings that have passed, ordered by most recent first."""
+    now = datetime.now()
     return (
         db.query(Meeting)
-        .filter(Meeting.status == "MISSED")
+        .filter(
+            or_(
+                Meeting.status == "MISSED",
+                (Meeting.status == "SCHEDULED") & (Meeting.scheduled_at < now)
+            )
+        )
         .order_by(Meeting.scheduled_at.desc())
         .all()
     )
